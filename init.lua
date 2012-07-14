@@ -131,6 +131,7 @@ minetest.register_abm({
             minetest.env:add_node(pos, {name="vines:vine_rotten"})
         else
             if n.name =="air" then
+                minetest.env:add_node(pos, {name="vines:vine_rotten"})
                 minetest.env:add_node(p, {name="vines:vine"})
             end
         end
