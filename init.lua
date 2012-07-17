@@ -252,7 +252,7 @@ minetest.register_on_dignode(function (pos, node, player)
         
         minetest.env:remove_node(p)
         
-    until n.name == "vines:ropes" or n.name == "vines:rope_end"
+    until n.name == "vines:rope_end" --ooops!
 		
 	end
 
