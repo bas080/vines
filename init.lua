@@ -51,7 +51,7 @@ minetest.register_node("vines:rope_end", {
     sunlight_propagates = true,
     paramtype = "light",
     drops = "",
-    tile_images = { "default_wood.png" },
+    tile_images = { "vines_rope.png" },
     drawtype = "plantlike",
     groups = {},
     sounds =  default.node_sound_leaves_defaults(),
@@ -169,8 +169,7 @@ minetest.register_abm({
         local n = minetest.env:get_node(p)
         
         --remove if top node is removed
-        if  n.name == "air"
-        and is_node_in_cube ({"vines:vine"}, pos, 3) then
+        if  n.name == "air" and is_node_in_cube ({"vines:vine"}, pos, 3) then
             minetest.env:add_node(p, {name="vines:vine"})
         end 
     end
@@ -237,24 +236,21 @@ minetest.register_craftitem("vines:vines", {
 })
 
 minetest.register_on_dignode(function (pos, node, player)
-    
-    if ( node.name == 'vines:rope_block' ) then
-    
-	    local p = {x=pos.x, y=pos.y-1, z=pos.z}
-        local n = minetest.env:get_node(p)
-	
-	    while (n.name ~= "vines:rope_end") do
-            
+
+    local p = {x=pos.x, y=pos.y-1, z=pos.z}
+    local n = minetest.env:get_node(p)
+
+    if node.name == 'vines:rope_block' then
+        print(n.name)
+        if n.name == "vines:ropes" then
+        while n.name ~= 'vines:rope_end' do
             minetest.env:remove_node(p)
-            
             p = {x=p.x, y=p.y-1, z=p.z}
             n = minetest.env:get_node(p)
         end 
-        
-        if (n.name == "vines:rope_end") then
+        end
+        if n.name == "vines:rope_end" then
             minetest.env:remove_node(p)
         end
-
-	end
-
+    end
 end)
