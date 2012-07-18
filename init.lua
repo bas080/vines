@@ -236,20 +236,21 @@ minetest.register_craftitem("vines:vines", {
 })
 
 minetest.register_on_dignode(function (pos, node, player)
-
-    local p = {x=pos.x, y=pos.y-1, z=pos.z}
-    local n = minetest.env:get_node(p)
-
     if node.name == 'vines:rope_block' then
+    
+        local p = {x=pos.x, y=pos.y-1, z=pos.z}
+        local n = minetest.env:get_node(p)
+        
         print(n.name)
-        if n.name == "vines:ropes" then
-        while n.name ~= 'vines:rope_end' do
-            minetest.env:remove_node(p)
-            p = {x=p.x, y=p.y-1, z=p.z}
-            n = minetest.env:get_node(p)
-        end 
+        
+        if n.name == 'vines:rope' then
+            while n.name ~= 'vines:rope_end' do
+                minetest.env:remove_node(p)
+                p = {x=p.x, y=p.y-1, z=p.z}
+                n = minetest.env:get_node(p)
+            end 
         end
-        if n.name == "vines:rope_end" then
+        if n.name == 'vines:rope_end' then
             minetest.env:remove_node(p)
         end
     end
