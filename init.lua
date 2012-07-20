@@ -98,7 +98,7 @@ minetest.register_node("vines:vine_rotten", {
 minetest.register_abm({
     nodenames = {"default:leaves", "growing_trees:leaves", "default:dirt_with_grass", },
     interval = 180,
-    chance = 1000,
+    chance = 200,
     action = function(pos, node)
         
         local p = {x=pos.x, y=pos.y-1, z=pos.z}
