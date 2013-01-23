@@ -7,24 +7,23 @@ minetest.register_node("vines:rope_block", {
     paramtype = "light",
     drops = "",
     tile_images = {
-		"vines_rope_block.png", 
-		"vines_rope_block.png",
-		"default_wood.png", 
-		"default_wood.png", 
-		"vines_rope_block.png", 
-		"vines_rope_block.png" 
-	},
+      "vines_rope_block.png", 
+      "vines_rope_block.png",
+      "default_wood.png", 
+      "default_wood.png", 
+      "vines_rope_block.png", 
+      "vines_rope_block.png" 
+    },
     drawtype = "cube",
     groups = { snappy = 3},
     sounds =  default.node_sound_leaves_defaults(),
     after_place_node = function(pos)
-
         local p = {x=pos.x, y=pos.y-1, z=pos.z}
         local n = minetest.env:get_node(p)
         if n.name == "air" then
-		    minetest.env:add_node(p, {name="vines:rope_end"})
-		end
-	end,
+        minetest.env:add_node(p, {name="vines:rope_end"})
+    end
+  end,
 })
 
 minetest.register_node("vines:rope", {
