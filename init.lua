@@ -75,7 +75,7 @@ minetest.register_node("vines:vine", {
     tile_images = { "vines_vine.png" },
     drawtype = "plantlike",
     inventory_image = "vines_vine.png",
-    groups = { snappy = 3,flammable=2 },
+    groups = { snappy = 3,flammable=2, hanging=1 },
 	sounds = default.node_sound_leaves_defaults(),
 })
 
@@ -89,7 +89,7 @@ minetest.register_node("vines:vine_rotten", {
     tile_images = { "vines_vine_rotten.png" },
     drawtype = "plantlike",
     inventory_image = "vines_vine_rotten.png",
-    groups = { snappy = 3,flammable=2 },
+    groups = { snappy = 3,flammable=2, hanging=1 },
 	sounds = default.node_sound_leaves_defaults(),
 })
 
