@@ -1,10 +1,3 @@
---Vines Mod for minetest adds vines to trees and dirt with grass nodes, 
---Also adds spawning API made for things that grow on the side of nodes signlike(param2) and things that grow downward.
-
---BY:           Bas080
---DESCRIPTION:  Vines for minetest
---Licence:      WTFPL
-
 local mod_name = "vines"
 local average_height = 12
 
@@ -93,10 +86,7 @@ minetest.register_node("vines:side", {
     local walldir = n.param2
     local down=-1
     
-    print("Placed")
-    
     while math.random(0,average_height) > 1.0 do
-      print("One")
       local pt = {x = p.x, y= p.y+down, z=p.z}
       local nt = minetest.env:get_node(pt)
       if nt.name == "air" then
