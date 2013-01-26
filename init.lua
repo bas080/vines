@@ -270,15 +270,15 @@ plantslib:spawn_on_surfaces({
 })
 
 plantslib:spawn_on_surfaces({
-  spawn_delay = spawn_interval/100,
+  spawn_delay = spawn_interval,
   spawn_plants = {"vines:willow"},
   spawn_chance = 3,
   spawn_surfaces = {"moretrees:willow_leaves"},
   spawn_on_side = true,
-  near_nodes_size = 20,
+  near_nodes_size = 2,
   near_nodes = {"default:water_source"},
   near_nodes_count = 1,
-  plantlife_limit = -1,
+  plantlife_limit = -0.5,
   near_nodes_vertical = 4,
 })
 
