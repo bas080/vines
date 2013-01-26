@@ -1,4 +1,3 @@
-
 local mod_name = "vines"
 local average_height = 12
 local spawn_interval = 1500
@@ -204,10 +203,9 @@ minetest.register_node("vines:vine_rotten", {
 
 --ABM
 --make vines grow downward
---[[
 minetest.register_abm({
-  nodenames = {"vines:vine", "vines:side", "vines:root"},
-  interval = 300,
+  nodenames = {"vines:vine", "vines:root"},
+  interval = 700,
   chance = 8,
   action = function(pos, node, active_object_count, active_object_count_wider)
     local p = {x=pos.x, y=pos.y-1, z=pos.z}
@@ -216,19 +214,6 @@ minetest.register_abm({
       walldir = node.param2
       minetest.env:add_node(p, {name=node.name, param2 = walldir})
     end
-  end
-})
-
-]]--
-
-minetest.register_abm({
-  nodenames = {"default:dirt", "default:dirt_with_grass"},
-  interval = 36000,
-  chance = 10,
-  action = function(pos, node, active_object_count, active_object_count_wider)
-    local p = {x=pos.x, y=pos.y-1, z=pos.z}
-    local n = minetest.env:get_node(p)
-    minetest.env:add_node(p, {name="vines:vine"})
   end
 })
 
@@ -265,29 +250,36 @@ minetest.register_craftitem("vines:vines", {
 })
 
 plantslib:spawn_on_surfaces({
-  spawn_delay = spawn_interval,
-  spawn_plants = {"vines:side"},
-  spawn_chance = 1,
-  spawn_surfaces = {"default:leaves"},
-  spawn_on_side = true
-})
-
-plantslib:spawn_on_surfaces({
+  savoid = {"vines:vine"},
+  sradius = 2,
   spawn_delay = spawn_interval,
   spawn_plants = {"vines:vine"},
-  spawn_chance = 1,
+  spawn_chance = 10,
   spawn_surfaces = {"default:leaves"},
   spawn_on_bottom = true
 })
 
 plantslib:spawn_on_surfaces({
+  savoid = {"vines:vine"},
+  sradius = 1,
   spawn_delay = spawn_interval,
+  spawn_plants = {"vines:side"},
+  spawn_chance = 10,
+  spawn_surfaces = {"default:leaves"},
+  spawn_on_side = true
+})
+
+plantslib:spawn_on_surfaces({
+  spawn_delay = spawn_interval/100,
   spawn_plants = {"vines:willow"},
-  spawn_chance = 1,
+  spawn_chance = 3,
   spawn_surfaces = {"moretrees:willow_leaves"},
   spawn_on_side = true,
+  near_nodes_size = 20,
   near_nodes = {"default:water_source"},
-  near_nodes_size = 4
+  near_nodes_count = 1,
+  plantlife_limit = -1,
+  near_nodes_vertical = 4,
 })
 
 print("[Vines] Loaded!")

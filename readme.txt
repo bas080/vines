@@ -8,15 +8,17 @@
 
 BY:             bas080
 DESCRIPTION:    Vines and ropebox
-VERSION:        1.5
+VERSION:        2.0
 LICENCE:        WTFPL
 FORUM:          http://forum.minetest.net/viewtopic.php?id=2344
 
 Changelog
 
 2.0
-* Root vines
-* Bottom vines
+* Root vines texture and node (no spawn)
+* Side vines spawn on leaves
+* Willow vines spawns on moretrees willow leaves
+* Ropebox after_dig_node re-defined
 
 1.5
 * Added side vines
