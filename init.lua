@@ -9,11 +9,11 @@ minetest.register_node("vines:rope_block", {
   paramtype = "light",
   drops = "",
   tile_images = {
-    "vines_rope_block.png", 
     "vines_rope_block.png",
-    "default_wood.png", 
-    "default_wood.png", 
-    "vines_rope_block.png", 
+    "vines_rope_block.png",
+    "default_wood.png",
+    "default_wood.png",
+    "vines_rope_block.png",
     "vines_rope_block.png"
   },
   drawtype = "cube",
@@ -275,11 +275,11 @@ plantslib:spawn_on_surfaces({
   spawn_chance = 3,
   spawn_surfaces = {"moretrees:willow_leaves"},
   spawn_on_side = true,
-  near_nodes_size = 2,
   near_nodes = {"default:water_source"},
+  near_nodes_size = 2,
+  near_nodes_vertical = 5,
   near_nodes_count = 1,
-  near_nodes_vertical = 4,
-  plantlife_limit = 0.5,
+  plantlife_limit = -0.9,
 })
 
 print("[Vines] Loaded!")
