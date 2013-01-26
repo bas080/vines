@@ -1,6 +1,6 @@
 local mod_name = "vines"
 local average_height = 12
-local spawn_interval = 1500
+local spawn_interval = 1520
 
 -- Nodes
 minetest.register_node("vines:rope_block", {
@@ -250,7 +250,7 @@ minetest.register_craftitem("vines:vines", {
 })
 
 plantslib:spawn_on_surfaces({
-  avoid_nodes = {"vines:vine"},
+  avoid_nodes = {"vines:vine", "vines:side"},
   avoid_radius = 2,
   spawn_delay = spawn_interval,
   spawn_plants = {"vines:vine"},
@@ -260,7 +260,7 @@ plantslib:spawn_on_surfaces({
 })
 
 plantslib:spawn_on_surfaces({
-  avoid_nodes = {"vines:vine"},
+  avoid_nodes = {"vines:vine", "vines:side"},
   avoid_radius = 1,
   spawn_delay = spawn_interval,
   spawn_plants = {"vines:side"},
@@ -279,7 +279,7 @@ plantslib:spawn_on_surfaces({
   near_nodes = {"default:water_source"},
   near_nodes_count = 1,
   near_nodes_vertical = 4,
-  plantlife_limit = -0.5,
+  plantlife_limit = 0.5,
 })
 
 print("[Vines] Loaded!")
