@@ -1,5 +1,7 @@
+
 local mod_name = "vines"
 local average_height = 12
+local spawn_interval = 1500
 
 -- Nodes
 minetest.register_node("vines:rope_block", {
@@ -25,6 +27,18 @@ minetest.register_node("vines:rope_block", {
       minetest.env:add_node(p, {name="vines:rope_end"})
     end
   end,
+  after_dig_node = function(pos, node, digger)
+    local p = {x=pos.x, y=pos.y-1, z=pos.z}
+    local n = minetest.env:get_node(p)
+    while n.name == 'vines:rope' do
+      minetest.env:remove_node(p)
+      p = {x=p.x, y=p.y-1, z=p.z}
+      n = minetest.env:get_node(p)
+    end
+    if n.name == 'vines:rope_end' then
+      minetest.env:remove_node(p)
+    end
+  end
 })
 
 minetest.register_node("vines:rope", {
@@ -73,6 +87,41 @@ minetest.register_node("vines:side", {
   paramtype = "light",
   paramtype2 = "wallmounted",
   tile_images = { "vines_side.png" },
+  drawtype = "signlike",
+  inventory_image = "vines_side.png",
+  groups = { snappy = 3,flammable=2, hanging=1 },
+  sounds = default.node_sound_leaves_defaults(),
+  selection_box = {
+    type = "wallmounted",
+  },
+  on_construct = function(pos, placer)
+    local p = {x=pos.x, y=pos.y, z=pos.z}
+    local n = minetest.env:get_node(p)
+    local walldir = n.param2
+    local down=-1
+    
+    while math.random(0,average_height) > 1.0 do
+      local pt = {x = p.x, y= p.y+down, z=p.z}
+      local nt = minetest.env:get_node(pt)
+      if nt.name == "air" then
+        minetest.env:add_node(pt, {name=n.name, param2 = walldir})
+        down=down-1
+      else
+        return
+      end
+    end
+  end,
+})
+
+minetest.register_node("vines:willow", {
+  description = "Vine",
+  walkable = false,
+  climbable = true,
+  drop = 'vines:vines',
+  sunlight_propagates = true,
+  paramtype = "light",
+  paramtype2 = "wallmounted",
+  tile_images = { "vines_willow.png" },
   drawtype = "signlike",
   inventory_image = "vines_side.png",
   groups = { snappy = 3,flammable=2, hanging=1 },
@@ -155,6 +204,7 @@ minetest.register_node("vines:vine_rotten", {
 
 --ABM
 --make vines grow downward
+--[[
 minetest.register_abm({
   nodenames = {"vines:vine", "vines:side", "vines:root"},
   interval = 300,
@@ -168,6 +218,8 @@ minetest.register_abm({
     end
   end
 })
+
+]]--
 
 minetest.register_abm({
   nodenames = {"default:dirt", "default:dirt_with_grass"},
@@ -212,28 +264,30 @@ minetest.register_craftitem("vines:vines", {
 	inventory_image = "vines_item.png",
 })
 
---remove rope when rope block is removed
-minetest.register_on_dignode(function (pos, node, player)
-  if node.name == 'vines:rope_block' then
-    local p = {x=pos.x, y=pos.y-1, z=pos.z}
-    local n = minetest.env:get_node(p)
-    while n.name == 'vines:rope' do
-      minetest.env:remove_node(p)
-      p = {x=p.x, y=p.y-1, z=p.z}
-      n = minetest.env:get_node(p)
-    end
-    if n.name == 'vines:rope_end' then
-      minetest.env:remove_node(p)
-    end
-  end
-end)
-
 plantslib:spawn_on_surfaces({
-  spawn_delay = 300,
+  spawn_delay = spawn_interval,
   spawn_plants = {"vines:side"},
-  spawn_chance = 10,
+  spawn_chance = 1,
   spawn_surfaces = {"default:leaves"},
   spawn_on_side = true
+})
+
+plantslib:spawn_on_surfaces({
+  spawn_delay = spawn_interval,
+  spawn_plants = {"vines:vine"},
+  spawn_chance = 1,
+  spawn_surfaces = {"default:leaves"},
+  spawn_on_bottom = true
+})
+
+plantslib:spawn_on_surfaces({
+  spawn_delay = spawn_interval,
+  spawn_plants = {"vines:willow"},
+  spawn_chance = 1,
+  spawn_surfaces = {"moretrees:willow_leaves"},
+  spawn_on_side = true,
+  near_nodes = {"default:water_source"},
+  near_nodes_size = 4
 })
 
 print("[Vines] Loaded!")
