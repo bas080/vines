@@ -17,8 +17,7 @@ minetest.register_node("vines:rope_block", {
     "vines_rope_block.png"
   },
   drawtype = "cube",
-  groups = { snappy = 3},
-  sounds =  default.node_sound_leaves_defaults(),
+  groups = {choppy=2,oddly_breakable_by_hand=1},
   after_place_node = function(pos)
     local p = {x=pos.x, y=pos.y-1, z=pos.z}
     local n = minetest.env:get_node(p)
@@ -48,7 +47,7 @@ minetest.register_node("vines:rope", {
   paramtype = "light",
   tile_images = { "vines_rope.png" },
   drawtype = "plantlike",
-  groups = {},
+  groups = {flammable=2},
   sounds =  default.node_sound_leaves_defaults(),
   selection_box = {
     type = "fixed",
@@ -65,7 +64,7 @@ minetest.register_node("vines:rope_end", {
   drops = "",
   tile_images = { "vines_rope.png" },
   drawtype = "plantlike",
-  groups = {},
+  groups = {flammable=2},
   sounds =  default.node_sound_leaves_defaults(),
   after_place_node = function(pos)
     yesh  = {x = pos.x, y= pos.y-1, z=pos.z}
@@ -251,7 +250,7 @@ minetest.register_craftitem("vines:vines", {
 
 plantslib:spawn_on_surfaces({
   avoid_nodes = {"vines:vine", "vines:side"},
-  avoid_radius = 2,
+  avoid_radius = 3,
   spawn_delay = spawn_interval,
   spawn_plants = {"vines:vine"},
   spawn_chance = 10,
@@ -261,7 +260,7 @@ plantslib:spawn_on_surfaces({
 
 plantslib:spawn_on_surfaces({
   avoid_nodes = {"vines:vine", "vines:side"},
-  avoid_radius = 1,
+  avoid_radius = 3,
   spawn_delay = spawn_interval,
   spawn_plants = {"vines:side"},
   spawn_chance = 10,
