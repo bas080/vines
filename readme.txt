@@ -8,11 +8,14 @@
 
 BY:             bas080
 DESCRIPTION:    Vines and ropebox
-VERSION:        2.0
+VERSION:        2.1
 LICENCE:        WTFPL
 FORUM:          http://forum.minetest.net/viewtopic.php?id=2344
 
 Changelog
+
+2.1
+* Removed rope(end) from creative inventory
 
 2.0
 * Root vines texture and node (no spawn)
