@@ -47,7 +47,7 @@ minetest.register_node("vines:rope", {
   paramtype = "light",
   tile_images = { "vines_rope.png" },
   drawtype = "plantlike",
-  groups = {flammable=2},
+  groups = {flammable=2, not_in_creative_inventory=1},
   sounds =  default.node_sound_leaves_defaults(),
   selection_box = {
     type = "fixed",
@@ -64,7 +64,7 @@ minetest.register_node("vines:rope_end", {
   drops = "",
   tile_images = { "vines_rope.png" },
   drawtype = "plantlike",
-  groups = {flammable=2},
+  groups = {flammable=2, not_in_creative_inventory=1},
   sounds =  default.node_sound_leaves_defaults(),
   after_place_node = function(pos)
     yesh  = {x = pos.x, y= pos.y-1, z=pos.z}
