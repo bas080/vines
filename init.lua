@@ -62,7 +62,7 @@ minetest.register_node("vines:rope_end", {
   sunlight_propagates = true,
   paramtype = "light",
   drops = "",
-  tile_images = { "vines_rope.png" },
+  tile_images = { "vines_rope_end.png" },
   drawtype = "plantlike",
   groups = {flammable=2, not_in_creative_inventory=1},
   sounds =  default.node_sound_leaves_defaults(),
