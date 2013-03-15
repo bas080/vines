@@ -223,11 +223,9 @@ minetest.register_abm({
   action = function(pos, node, active_object_count, active_object_count_wider)
     local p = {x=pos.x, y=pos.y-1, z=pos.z}
     local n = minetest.env:get_node(p)
-    
     --remove if top node is removed
     if  n.name == "air" then
-      minetest.env:remove_node(pos)
-      minetest.env:add_node(pos, {name="vines:rope"})
+      minetest.env:set_node(pos, {name="vines:rope"})
       minetest.env:add_node(p, {name="vines:rope_end"})
     end 
   end
