@@ -1,7 +1,6 @@
 local mod_name = "vines"
 local average_height = 12
-local spawn_interval = 1520
-
+local spawn_interval = 90
 -- Nodes
 minetest.register_node("vines:rope_block", {
   description = "Rope",
@@ -121,7 +120,7 @@ minetest.register_node("vines:willow", {
   paramtype2 = "wallmounted",
   tile_images = { "vines_willow.png" },
   drawtype = "signlike",
-  inventory_image = "vines_side.png",
+  inventory_image = "vines_willow.png",
   groups = { snappy = 3,flammable=2, hanging=1 },
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
@@ -180,6 +179,23 @@ minetest.register_node("vines:vine", {
     type = "fixed",
     fixed = {-0.3, -1/2, -0.3, 0.3, 1/2, 0.3},
   },
+  on_construct = function(pos, placer)
+    local p = {x=pos.x, y=pos.y, z=pos.z}
+    local n = minetest.env:get_node(p)
+    local walldir = n.param2
+    local down=-1
+    
+    while math.random(0,average_height) > 1.0 do
+      local pt = {x = p.x, y= p.y+down, z=p.z}
+      local nt = minetest.env:get_node(pt)
+      if nt.name == "air" then
+        minetest.env:add_node(pt, {name=n.name, param2 = walldir})
+        down=down-1
+      else
+        return
+      end
+    end
+  end,
 })
 
 minetest.register_node("vines:vine_rotten", {
@@ -201,7 +217,6 @@ minetest.register_node("vines:vine_rotten", {
 })
 
 --ABM
---make vines grow downward
 minetest.register_abm({
   nodenames = {"vines:vine", "vines:root"},
   interval = 700,
@@ -230,8 +245,7 @@ minetest.register_abm({
     end 
   end
 })
-
--- craft rope
+--Craft
 minetest.register_craft({
   output = 'vines:rope_block',
   recipe = {
@@ -242,18 +256,19 @@ minetest.register_craft({
 })
 
 minetest.register_craftitem("vines:vines", {
-	description = "Vines",
-	inventory_image = "vines_item.png",
+  description = "Vines",
+  inventory_image = "vines_item.png",
 })
-
+--spawning
 plantslib:spawn_on_surfaces({
-  avoid_nodes = {"vines:vine", "vines:side"},
-  avoid_radius = 3,
+  avoid_nodes = {"vines:vine"},
+  avoid_radius = 5,
   spawn_delay = spawn_interval,
   spawn_plants = {"vines:vine"},
   spawn_chance = 10,
-  spawn_surfaces = {"default:leaves"},
-  spawn_on_bottom = true
+  spawn_surfaces = {"default:dirt_with_grass","default:dirt"},
+  spawn_on_bottom = true,
+  plantlife_limit = -0.9,
 })
 
 plantslib:spawn_on_surfaces({
@@ -263,7 +278,12 @@ plantslib:spawn_on_surfaces({
   spawn_plants = {"vines:side"},
   spawn_chance = 10,
   spawn_surfaces = {"default:leaves"},
-  spawn_on_side = true
+  spawn_on_side = true,
+  near_nodes = {"default:water_source"},
+  near_nodes_size = 10,
+  near_nodes_vertical = 5,
+  near_nodes_count = 1,
+  plantlife_limit = -0.9,
 })
 
 plantslib:spawn_on_surfaces({
