@@ -86,7 +86,7 @@ minetest.register_node("vines:side", {
   tile_images = { "vines_side.png" },
   drawtype = "signlike",
   inventory_image = "vines_side.png",
-  groups = { snappy = 3,flammable=2, hanging=1 },
+  groups = { snappy = 3,flammable=2, hanging_node=1, wood=1},
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
     type = "wallmounted",
@@ -121,7 +121,7 @@ minetest.register_node("vines:willow", {
   tile_images = { "vines_willow.png" },
   drawtype = "signlike",
   inventory_image = "vines_willow.png",
-  groups = { snappy = 3,flammable=2, hanging=1 },
+  groups = { snappy = 3,flammable=2, hanging_node=1, wood=1},
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
     type = "wallmounted",
@@ -155,7 +155,7 @@ minetest.register_node("vines:root", {
   tile_images = { "vines_root.png" },
   drawtype = "plantlike",
   inventory_image = "vines_root.png",
-  groups = { snappy = 3,flammable=2, hanging=1 },
+  groups = { snappy = 3,flammable=2, hanging_node=1, wood=1},
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
     type = "fixed",
@@ -173,7 +173,7 @@ minetest.register_node("vines:vine", {
   tile_images = { "vines_vine.png" },
   drawtype = "plantlike",
   inventory_image = "vines_vine.png",
-  groups = { snappy = 3,flammable=2, hanging=1 },
+  groups = { snappy = 3,flammable=2, hanging_node=1, wood=1},
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
     type = "fixed",
@@ -208,7 +208,7 @@ minetest.register_node("vines:vine_rotten", {
   tile_images = { "vines_vine_rotten.png" },
   drawtype = "plantlike",
   inventory_image = "vines_vine_rotten.png",
-  groups = { snappy = 3,flammable=2, hanging=1 },
+  groups = { snappy = 3,flammable=2, hanging_node=1, wood=1},
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
     type = "fixed",
