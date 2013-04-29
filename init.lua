@@ -279,7 +279,7 @@ plantslib:spawn_on_surfaces({
   spawn_chance = 10,
   spawn_surfaces = {"group:leafdecay"},
   spawn_on_side = true,
-  near_nodes = {"default:water_source"},
+  near_nodes = {"default:water_source", "default:jungletree"},
   near_nodes_size = 10,
   near_nodes_vertical = 5,
   near_nodes_count = 1,
