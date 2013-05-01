@@ -8,11 +8,17 @@
 
 BY:             bas080
 DESCRIPTION:    Vines and ropebox
-VERSION:        2.1
+VERSION:        2.2.1
 LICENCE:        WTFPL
 FORUM:          http://forum.minetest.net/viewtopic.php?id=2344
 
 Changelog
+---------
+2.2.1
+* Also spawn on leaves that are near jungletree
+* Uses default wood texture
+* Drops actual vines
+* Changed craft
 
 2.2
 * Spawns on all leaves that are near water
