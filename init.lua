@@ -1,7 +1,6 @@
 --[[TODO
   ropebox rope break results in bottom rope dissapearing and bottom drop rope node to appear at the new bottom
-  and rope does not drop anything!
-  All vine types should rot which makes them not climbable and drop no vine nodes
+  and rope does not drop anything!!!!
 ]]
 
 local mod_name = "vines"
@@ -58,6 +57,9 @@ minetest.register_node("vines:rope", {
     type = "fixed",
     fixed = {-1/7, -1/2, -1/7, 1/7, 1/2, 1/7},
   },
+  on_destruct = function()
+    
+  end,
 })
 
 minetest.register_node("vines:rope_end", {
@@ -73,7 +75,7 @@ minetest.register_node("vines:rope_end", {
   sounds =  default.node_sound_leaves_defaults(),
   after_place_node = function(pos)
     yesh  = {x = pos.x, y= pos.y-1, z=pos.z}
-    minetest.add_node(yesh, {name="vines:rope")
+    minetest.add_node(yesh, {name="vines:rope"})
   end,
   selection_box = {
 	  type = "fixed",
@@ -91,7 +93,7 @@ minetest.register_node("vines:side", {
   tile_images = { "vines_side.png" },
   drawtype = "signlike",
   inventory_image = "vines_side.png",
-  groups = { snappy = 3,flammable=2, hanging_node=1, wood=1},
+  groups = {vines=1,leafdecay=1, snappy = 3,flammable=2, hanging_node=1, wood=1},
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
     type = "wallmounted",
@@ -113,6 +115,33 @@ minetest.register_node("vines:side", {
       end
     end
   end,
+  on_punch = function(pos, node)
+    local side = node.param2
+    print(side)
+    minetest.set_node(pos, {name="vines:side_rotten", param2=side})
+  end,
+  after_destruct = function(pos, node)
+    local side = node.param2
+    minetest.set_node(pos, {name="vines:side_rotten", param2=side})
+  end,
+})
+
+minetest.register_node("vines:side_rotten", {
+  description = "Vine",
+  walkable = false,
+  climbable = false,
+  drop = "",
+  sunlight_propagates = true,
+  paramtype = "light",
+  paramtype2 = "wallmounted",
+  tile_images = { "vines_side_rotten.png" },
+  drawtype = "signlike",
+  inventory_image = "vines_side.png",
+  groups = {snappy = 3,flammable=2, hanging_node=1, wood=1},
+  sounds = default.node_sound_leaves_defaults(),
+  selection_box = {
+    type = "wallmounted",
+  },
 })
 
 minetest.register_node("vines:willow", {
@@ -125,7 +154,7 @@ minetest.register_node("vines:willow", {
   tile_images = { "vines_willow.png" },
   drawtype = "signlike",
   inventory_image = "vines_willow.png",
-  groups = { snappy = 3,flammable=2, hanging_node=1, wood=1},
+  groups = {vines=1,leafdecay = 1, snappy = 3,flammable=2, hanging_node=1, wood=1},
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
     type = "wallmounted",
@@ -147,6 +176,33 @@ minetest.register_node("vines:willow", {
       end
     end
   end,
+  on_punch = function(pos, node)
+    local side = node.param2
+    print(side)
+    minetest.set_node(pos, {name="vines:willow_rotten", param2=side})
+  end,
+  after_destruct = function(pos, node)
+    local side = node.param2
+    minetest.set_node(pos, {name="vines:willow_rotten", param2=side})
+  end,
+})
+
+minetest.register_node("vines:willow_rotten", {
+  description = "Vine",
+  walkable = false,
+  climbable = false,
+  sunlight_propagates = true,
+  paramtype = "light",
+  drop = "",
+  paramtype2 = "wallmounted",
+  tile_images = { "vines_willow_rotten.png" },
+  drawtype = "signlike",
+  inventory_image = "vines_willow.png",
+  groups = {snappy = 3,flammable=2, hanging_node=1, wood=1},
+  sounds = default.node_sound_leaves_defaults(),
+  selection_box = {
+    type = "wallmounted",
+  },
 })
 
 minetest.register_node("vines:root", {
@@ -158,7 +214,7 @@ minetest.register_node("vines:root", {
   tile_images = { "vines_root.png" },
   drawtype = "plantlike",
   inventory_image = "vines_root.png",
-  groups = { snappy = 3,flammable=2, hanging_node=1, wood=1},
+  groups = {vines=1,snappy = 3,flammable=2, hanging_node=1, wood=1},
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
     type = "fixed",
@@ -175,7 +231,7 @@ minetest.register_node("vines:vine", {
   tile_images = { "vines_vine.png" },
   drawtype = "plantlike",
   inventory_image = "vines_vine.png",
-  groups = { snappy = 3,flammable=2, hanging_node=1, wood=1},
+  groups = {vines=1,snappy = 3,flammable=2, hanging_node=1, wood=1},
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
     type = "fixed",
@@ -209,7 +265,7 @@ minetest.register_node("vines:vine_rotten", {
   tile_images = { "vines_vine_rotten.png" },
   drawtype = "plantlike",
   inventory_image = "vines_vine_rotten.png",
-  groups = { snappy = 3,flammable=2, hanging_node=1, wood=1},
+  groups = {snappy = 3,flammable=2, hanging_node=1, wood=1},
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
     type = "fixed",
@@ -298,6 +354,49 @@ plantslib:spawn_on_surfaces({
   near_nodes_vertical = 5,
   near_nodes_count = 1,
   plantlife_limit = -0.9,
+})
+
+--Shears jojoa1997's shears
+minetest.register_tool("vines:shears", {
+	description = "Shears",
+	inventory_image = "shears.png",
+	wield_image = "shears.png",
+	stack_max = 1,
+	max_drop_level=3,
+	tool_capabilities = {
+    full_punch_interval = 1.0,
+    max_drop_level=0,
+    groupcaps={
+      snappy={times={[3]=0.2}, maxwear=0.05, maxlevel=3},
+      wool={times={[3]=0.2}, maxwear=0.05, maxlevel=3}
+    }
+  },
+  on_use = function(itemstack, user, pointed_thing)
+    if pointed_thing.under == nil then return end
+    
+    local n = minetest.get_node(pointed_thing.under)
+        
+    if minetest.get_node_group(n.name, "vines") ~= 0 then
+      local inv = user:get_inventory()
+      if inv then
+				minetest.set_node(pointed_thing.under, {name="air"})
+				inv:add_item("main", ItemStack(minetest.get_node(pointed_thing.under).name))
+			end
+      if not minetest.setting_getbool("creative_mode") then
+			  itemstack:add_wear(65535/80)
+		  end
+    end
+    return itemstack
+  end,
+})
+
+minetest.register_craft({
+	output = 'special_tools:shears',
+	recipe = {
+		{'', 'default:steel_ingot', ''},
+		{'default:stick', 'default:wood', 'default:steel_ingot'},
+		{'', '', 'default:stick'},
+	}
 })
 
 print("[Vines] Loaded!")
