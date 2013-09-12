@@ -1,3 +1,9 @@
+--[[TODO
+  ropebox rope break results in bottom rope dissapearing and bottom drop rope node to appear at the new bottom
+  and rope does not drop anything!
+  All vine types should rot which makes them not climbable and drop no vine nodes
+]]
+
 local mod_name = "vines"
 local average_height = 12
 local spawn_interval = 90
@@ -18,21 +24,21 @@ minetest.register_node("vines:rope_block", {
   groups = {choppy=2,oddly_breakable_by_hand=1},
   after_place_node = function(pos)
     local p = {x=pos.x, y=pos.y-1, z=pos.z}
-    local n = minetest.env:get_node(p)
+    local n = minetest.get_node(p)
     if n.name == "air" then
-      minetest.env:add_node(p, {name="vines:rope_end"})
+      minetest.add_node(p, {name="vines:rope_end"})
     end
   end,
   after_dig_node = function(pos, node, digger)
     local p = {x=pos.x, y=pos.y-1, z=pos.z}
-    local n = minetest.env:get_node(p)
+    local n = minetest.get_node(p)
     while n.name == 'vines:rope' do
-      minetest.env:remove_node(p)
+      minetest.remove_node(p)
       p = {x=p.x, y=p.y-1, z=p.z}
-      n = minetest.env:get_node(p)
+      n = minetest.get_node(p)
     end
     if n.name == 'vines:rope_end' then
-      minetest.env:remove_node(p)
+      minetest.remove_node(p)
     end
   end
 })
@@ -43,6 +49,7 @@ minetest.register_node("vines:rope", {
   climbable = true,
   sunlight_propagates = true,
   paramtype = "light",
+  drop = "",
   tile_images = { "vines_rope.png" },
   drawtype = "plantlike",
   groups = {flammable=2, not_in_creative_inventory=1},
@@ -59,13 +66,14 @@ minetest.register_node("vines:rope_end", {
   climbable = true,
   sunlight_propagates = true,
   paramtype = "light",
+  drop = "",
   tile_images = { "vines_rope_end.png" },
   drawtype = "plantlike",
   groups = {flammable=2, not_in_creative_inventory=1},
   sounds =  default.node_sound_leaves_defaults(),
   after_place_node = function(pos)
     yesh  = {x = pos.x, y= pos.y-1, z=pos.z}
-    minetest.env:add_node(yesh, "vines:rope")
+    minetest.add_node(yesh, {name="vines:rope")
   end,
   selection_box = {
 	  type = "fixed",
@@ -90,15 +98,15 @@ minetest.register_node("vines:side", {
   },
   on_construct = function(pos, placer)
     local p = {x=pos.x, y=pos.y, z=pos.z}
-    local n = minetest.env:get_node(p)
+    local n = minetest.get_node(p)
     local walldir = n.param2
     local down=-1
     
     while math.random(0,average_height) > 1.0 do
       local pt = {x = p.x, y= p.y+down, z=p.z}
-      local nt = minetest.env:get_node(pt)
+      local nt = minetest.get_node(pt)
       if nt.name == "air" then
-        minetest.env:add_node(pt, {name=n.name, param2 = walldir})
+        minetest.add_node(pt, {name=n.name, param2 = walldir})
         down=down-1
       else
         return
@@ -124,15 +132,15 @@ minetest.register_node("vines:willow", {
   },
   on_construct = function(pos, placer)
     local p = {x=pos.x, y=pos.y, z=pos.z}
-    local n = minetest.env:get_node(p)
+    local n = minetest.get_node(p)
     local walldir = n.param2
     local down=-1
     
     while math.random(0,average_height) > 1.0 do
       local pt = {x = p.x, y= p.y+down, z=p.z}
-      local nt = minetest.env:get_node(pt)
+      local nt = minetest.get_node(pt)
       if nt.name == "air" then
-        minetest.env:add_node(pt, {name=n.name, param2 = walldir})
+        minetest.add_node(pt, {name=n.name, param2 = walldir})
         down=down-1
       else
         return
@@ -175,15 +183,15 @@ minetest.register_node("vines:vine", {
   },
   on_construct = function(pos, placer)
     local p = {x=pos.x, y=pos.y, z=pos.z}
-    local n = minetest.env:get_node(p)
+    local n = minetest.get_node(p)
     local walldir = n.param2
     local down=-1
     
     while math.random(0,average_height) > 1.0 do
       local pt = {x = p.x, y= p.y+down, z=p.z}
-      local nt = minetest.env:get_node(pt)
+      local nt = minetest.get_node(pt)
       if nt.name == "air" then
-        minetest.env:add_node(pt, {name=n.name, param2 = walldir})
+        minetest.add_node(pt, {name=n.name, param2 = walldir})
         down=down-1
       else
         return
@@ -216,10 +224,10 @@ minetest.register_abm({
   chance = 8,
   action = function(pos, node, active_object_count, active_object_count_wider)
     local p = {x=pos.x, y=pos.y-1, z=pos.z}
-    local n = minetest.env:get_node(p)
+    local n = minetest.get_node(p)
     if n.name == "air" then
       walldir = node.param2
-      minetest.env:add_node(p, {name=node.name, param2 = walldir})
+      minetest.add_node(p, {name=node.name, param2 = walldir})
     end
   end
 })
@@ -230,11 +238,11 @@ minetest.register_abm({
   chance = 1,
   action = function(pos, node, active_object_count, active_object_count_wider)
     local p = {x=pos.x, y=pos.y-1, z=pos.z}
-    local n = minetest.env:get_node(p)
+    local n = minetest.get_node(p)
     --remove if top node is removed
     if  n.name == "air" then
-      minetest.env:set_node(pos, {name="vines:rope"})
-      minetest.env:add_node(p, {name="vines:rope_end"})
+      minetest.set_node(pos, {name="vines:rope"})
+      minetest.add_node(p, {name="vines:rope_end"})
     end 
   end
 })
