@@ -391,7 +391,7 @@ minetest.register_tool("vines:shears", {
 })
 
 minetest.register_craft({
-	output = 'special_tools:shears',
+	output = 'vines:shears',
 	recipe = {
 		{'', 'default:steel_ingot', ''},
 		{'default:stick', 'default:wood', 'default:steel_ingot'},
