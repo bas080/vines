@@ -225,6 +225,7 @@ minetest.register_node("vines:vine_rotten", {
   description = "Rotten vine",
   walkable = false,
   climbable = true,
+  drop = "",
   sunlight_propagates = true,
   paramtype = "light",
   tile_images = { "vines_vine_rotten.png" },
