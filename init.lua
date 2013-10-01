@@ -6,6 +6,7 @@
 local mod_name = "vines"
 local average_height = 12
 local spawn_interval = 90
+local vines_group = {attached_node=1,vines=1,snappy=3,flammable=2,hanging_node=1}
 -- Nodes
 minetest.register_node("vines:rope_block", {
   description = "Rope",
@@ -87,43 +88,28 @@ minetest.register_node("vines:side", {
   description = "Vine",
   walkable = false,
   climbable = true,
+  drop = "",
   sunlight_propagates = true,
   paramtype = "light",
   paramtype2 = "wallmounted",
   tile_images = { "vines_side.png" },
   drawtype = "signlike",
   inventory_image = "vines_side.png",
-  groups = {vines=1,leafdecay=1, snappy = 3,flammable=2, hanging_node=1, wood=1},
+  groups = vines_group,
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
     type = "wallmounted",
   },
-  on_construct = function(pos, placer)
-    local p = {x=pos.x, y=pos.y, z=pos.z}
-    local n = minetest.get_node(p)
-    local walldir = n.param2
-    local down=-1
-    
-    while math.random(0,average_height) > 1.0 do
-      local pt = {x = p.x, y= p.y+down, z=p.z}
-      local nt = minetest.get_node(pt)
-      if nt.name == "air" then
-        minetest.add_node(pt, {name=n.name, param2 = walldir})
-        down=down-1
-      else
-        return
+  after_dig_node = function(pos, oldnode, oldmetadata, user)
+    local wielded = user:get_wielded_item()
+    if 'vines:shears' == wielded:get_name() then 
+      local inv = user:get_inventory()
+      if inv then
+        inv:add_item("main", ItemStack(oldnode.name))
       end
     end
-  end,
-  on_punch = function(pos, node)
-    local side = node.param2
-    print(side)
-    minetest.set_node(pos, {name="vines:side_rotten", param2=side})
-  end,
-  after_destruct = function(pos, node)
-    local side = node.param2
-    minetest.set_node(pos, {name="vines:side_rotten", param2=side})
-  end,
+    wielded:add_wear(65535/80)
+  end
 })
 
 minetest.register_node("vines:side_rotten", {
@@ -137,7 +123,7 @@ minetest.register_node("vines:side_rotten", {
   tile_images = { "vines_side_rotten.png" },
   drawtype = "signlike",
   inventory_image = "vines_side.png",
-  groups = {snappy = 3,flammable=2, hanging_node=1, wood=1},
+  groups = {snappy = 3,flammable=2, hanging_node=1},
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
     type = "wallmounted",
@@ -148,43 +134,28 @@ minetest.register_node("vines:willow", {
   description = "Vine",
   walkable = false,
   climbable = true,
+  drop = "",
   sunlight_propagates = true,
   paramtype = "light",
   paramtype2 = "wallmounted",
   tile_images = { "vines_willow.png" },
   drawtype = "signlike",
   inventory_image = "vines_willow.png",
-  groups = {vines=1,leafdecay = 1, snappy = 3,flammable=2, hanging_node=1, wood=1},
+  groups = vines_group,
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
     type = "wallmounted",
   },
-  on_construct = function(pos, placer)
-    local p = {x=pos.x, y=pos.y, z=pos.z}
-    local n = minetest.get_node(p)
-    local walldir = n.param2
-    local down=-1
-    
-    while math.random(0,average_height) > 1.0 do
-      local pt = {x = p.x, y= p.y+down, z=p.z}
-      local nt = minetest.get_node(pt)
-      if nt.name == "air" then
-        minetest.add_node(pt, {name=n.name, param2 = walldir})
-        down=down-1
-      else
-        return
+  after_dig_node = function(pos, oldnode, oldmetadata, user)
+    local wielded = user:get_wielded_item()
+    if 'vines:shears' == wielded:get_name() then 
+      local inv = user:get_inventory()
+      if inv then
+        inv:add_item("main", ItemStack(oldnode.name))
       end
     end
-  end,
-  on_punch = function(pos, node)
-    local side = node.param2
-    print(side)
-    minetest.set_node(pos, {name="vines:willow_rotten", param2=side})
-  end,
-  after_destruct = function(pos, node)
-    local side = node.param2
-    minetest.set_node(pos, {name="vines:willow_rotten", param2=side})
-  end,
+    wielded:add_wear(65535/80)
+  end
 })
 
 minetest.register_node("vines:willow_rotten", {
@@ -198,7 +169,7 @@ minetest.register_node("vines:willow_rotten", {
   tile_images = { "vines_willow_rotten.png" },
   drawtype = "signlike",
   inventory_image = "vines_willow.png",
-  groups = {snappy = 3,flammable=2, hanging_node=1, wood=1},
+  groups = {snappy = 3,flammable=2, hanging_node=1},
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
     type = "wallmounted",
@@ -214,7 +185,7 @@ minetest.register_node("vines:root", {
   tile_images = { "vines_root.png" },
   drawtype = "plantlike",
   inventory_image = "vines_root.png",
-  groups = {vines=1,snappy = 3,flammable=2, hanging_node=1, wood=1},
+  groups = {vines=1,snappy = 3,flammable=2, hanging_node=1},
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
     type = "fixed",
@@ -227,33 +198,27 @@ minetest.register_node("vines:vine", {
   walkable = false,
   climbable = true,
   sunlight_propagates = true,
+  drop = "",
   paramtype = "light",
   tile_images = { "vines_vine.png" },
   drawtype = "plantlike",
   inventory_image = "vines_vine.png",
-  groups = {vines=1,snappy = 3,flammable=2, hanging_node=1, wood=1},
+  groups = vines_group,
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
     type = "fixed",
     fixed = {-0.3, -1/2, -0.3, 0.3, 1/2, 0.3},
   },
-  on_construct = function(pos, placer)
-    local p = {x=pos.x, y=pos.y, z=pos.z}
-    local n = minetest.get_node(p)
-    local walldir = n.param2
-    local down=-1
-    
-    while math.random(0,average_height) > 1.0 do
-      local pt = {x = p.x, y= p.y+down, z=p.z}
-      local nt = minetest.get_node(pt)
-      if nt.name == "air" then
-        minetest.add_node(pt, {name=n.name, param2 = walldir})
-        down=down-1
-      else
-        return
+  after_dig_node = function(pos, oldnode, oldmetadata, user)
+    local wielded = user:get_wielded_item()
+    if 'vines:shears' == wielded:get_name() then 
+      local inv = user:get_inventory()
+      if inv then
+        inv:add_item("main", ItemStack(oldnode.name))
       end
     end
-  end,
+    wielded:add_wear(65535/80)
+  end
 })
 
 minetest.register_node("vines:vine_rotten", {
@@ -265,7 +230,7 @@ minetest.register_node("vines:vine_rotten", {
   tile_images = { "vines_vine_rotten.png" },
   drawtype = "plantlike",
   inventory_image = "vines_vine_rotten.png",
-  groups = {snappy = 3,flammable=2, hanging_node=1, wood=1},
+  groups = {snappy = 3,flammable=2, hanging_node=1},
   sounds = default.node_sound_leaves_defaults(),
   selection_box = {
     type = "fixed",
@@ -275,9 +240,21 @@ minetest.register_node("vines:vine_rotten", {
 
 --ABM
 minetest.register_abm({
-  nodenames = {"vines:vine", "vines:root"},
-  interval = 700,
+  nodenames = {"vines:vine", "vines:side", "vines:willow"},
+  interval = 300,
   chance = 8,
+  action = function(pos, node, active_object_count, active_object_count_wider)
+    if minetest.find_node_near(pos, 5, "group:tree") == nil then
+      walldir = node.param2
+      minetest.add_node(pos, {name=node.name.."_rotten", param2 = walldir})
+    end
+  end
+})
+
+minetest.register_abm({
+  nodenames = {"vines:vine", "vines:side", "vines:willow"},
+  interval = 300,
+  chance = 2,
   action = function(pos, node, active_object_count, active_object_count_wider)
     local p = {x=pos.x, y=pos.y-1, z=pos.z}
     local n = minetest.get_node(p)
@@ -292,6 +269,7 @@ minetest.register_abm({
   nodenames = {"vines:rope_end"},
   interval = 1,
   chance = 1,
+  drop = "",
   action = function(pos, node, active_object_count, active_object_count_wider)
     local p = {x=pos.x, y=pos.y-1, z=pos.z}
     local n = minetest.get_node(p)
@@ -371,23 +349,6 @@ minetest.register_tool("vines:shears", {
       wool={times={[3]=0.2}, maxwear=0.05, maxlevel=3}
     }
   },
-  on_use = function(itemstack, user, pointed_thing)
-    if pointed_thing.under == nil then return end
-    
-    local n = minetest.get_node(pointed_thing.under)
-        
-    if minetest.get_node_group(n.name, "vines") ~= 0 then
-      local inv = user:get_inventory()
-      if inv then
-				minetest.set_node(pointed_thing.under, {name="air"})
-				inv:add_item("main", ItemStack(minetest.get_node(pointed_thing.under).name))
-			end
-      if not minetest.setting_getbool("creative_mode") then
-			  itemstack:add_wear(65535/80)
-		  end
-    end
-    return itemstack
-  end,
 })
 
 minetest.register_craft({
