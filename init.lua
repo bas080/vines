@@ -101,14 +101,13 @@ minetest.register_node("vines:side", {
     type = "wallmounted",
   },
   after_dig_node = function(pos, oldnode, oldmetadata, user)
-    local wielded = user:get_wielded_item()
+    local wielded if user:get_wielded_item() ~= nil then wielded = user:get_wielded_item() else return end
     if 'vines:shears' == wielded:get_name() then 
       local inv = user:get_inventory()
       if inv then
         inv:add_item("main", ItemStack(oldnode.name))
       end
     end
-    wielded:add_wear(65535/80)
   end
 })
 
@@ -147,14 +146,13 @@ minetest.register_node("vines:willow", {
     type = "wallmounted",
   },
   after_dig_node = function(pos, oldnode, oldmetadata, user)
-    local wielded = user:get_wielded_item()
+    local wielded if user:get_wielded_item() ~= nil then wielded = user:get_wielded_item() else return end
     if 'vines:shears' == wielded:get_name() then 
       local inv = user:get_inventory()
       if inv then
         inv:add_item("main", ItemStack(oldnode.name))
       end
     end
-    wielded:add_wear(65535/80)
   end
 })
 
@@ -210,14 +208,13 @@ minetest.register_node("vines:vine", {
     fixed = {-0.3, -1/2, -0.3, 0.3, 1/2, 0.3},
   },
   after_dig_node = function(pos, oldnode, oldmetadata, user)
-    local wielded = user:get_wielded_item()
+    local wielded if user:get_wielded_item() ~= nil then wielded = user:get_wielded_item() else return end
     if 'vines:shears' == wielded:get_name() then 
       local inv = user:get_inventory()
       if inv then
         inv:add_item("main", ItemStack(oldnode.name))
       end
     end
-    wielded:add_wear(65535/80)
   end
 })
 
