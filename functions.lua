@@ -1,8 +1,9 @@
-vines.register_vine = function( name, defs )
+vines.register_vine = function( name, defs, biome )
   --different properties for bottom and side vines.
+  local drop_node = 'vines:'..name
   local drawtype = ''
   local selection_box
-  if ( defs.is_side_vine ) then
+  if ( biome.spawn_on_side ) then
     selection_box = {
       type = "wallmounted",
     }
@@ -15,7 +16,9 @@ vines.register_vine = function( name, defs )
     drawtype = 'plantlike'
   end
 
-  minetest.register_node("vines:"..name, {
+  biome.spawn_plants = { "vines:"..name }
+
+  minetest.register_node( "vines:"..name, {
     description = defs.description,
     walkable = false,
     climbable = true,
@@ -49,7 +52,7 @@ vines.register_vine = function( name, defs )
       end
     end,
     after_dig_node = function(pos, node, oldmetadata, user)
-      vines.dig_vine( pos, node, user )
+      vines.dig_vine( pos, drop_node, user )
     end
   })
 
@@ -79,20 +82,48 @@ vines.register_vine = function( name, defs )
         minetest.remove_node( bottom )
       end
     end,
-    after_dig_node = function(pos, node, oldmetadata, user)
-      vines.dig_vine( pos, node, user )
+    after_dig_node = function( pos, node, oldmetadata, user )
+      vines.dig_vine( pos, drop_node, user )
     end
   })
+
+  plantslib:spawn_on_surfaces( biome )
+
+  local override_nodes = function( nodes, defs )
+    function override( index, registered )
+      local node = nodes[ index ]
+      if index > #nodes then return registered end
+      if minetest.registered_nodes[node] then
+        print('overiding: '..node)
+        minetest.override_item( node, defs )
+        registered[#registered+1] = node
+      end
+      override( index+1, registered )
+    end
+    override( 1, {} )
+  end
+
+  override_nodes( biome.spawn_surfaces,{
+    after_destruct = function( pos )
+      local pos_min = { x = pos.x -1, y = pos.y - 1, z = pos.z - 1 }
+      local pos_max = { x = pos.x +1, y = pos.y + 1, z = pos.z + 1 }
+      local positions = minetest.find_nodes_in_area( pos_min, pos_max, "group:vines" )
+      for index, position in pairs(positions) do
+        minetest.remove_node( position )
+      end
+    end
+  })
+
 end
 
-vines.dig_vine = function( pos, node, user )
+vines.dig_vine = function( pos, node_name, user )
   --only dig give the vine if shears are used
   if not user then return false end
   local wielded = user:get_wielded_item()
   if 'vines:shears' == wielded:get_name() then 
     local inv = user:get_inventory()
     if inv then
-      inv:add_item("main", ItemStack(node.name))
+      inv:add_item("main", ItemStack( node_name ))
     end
   end
 end
