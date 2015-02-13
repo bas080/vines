@@ -3,6 +3,11 @@ vines.register_vine = function( name, defs, biome )
   local drop_node = 'vines:'..name
   local drawtype = ''
   local selection_box
+  local groups = { vines=1, snappy=3, flammable=2 }
+
+  local group_name = name..'_vines'
+  biome.spawn_surfaces[ #biome.spawn_surfaces ] = group_name
+
   if ( biome.spawn_on_side ) then
     selection_box = {
       type = "wallmounted",
@@ -31,7 +36,7 @@ vines.register_vine = function( name, defs, biome )
     tile_images = { "vines_"..name..".png" },
     drawtype = drawtype,
     inventory_image = "vines_"..name..".png",
-    groups = vines.groups,
+    groups = groups,
     sounds = default.node_sound_leaves_defaults(),
     selection_box = selection_box,
     on_construct = function( pos )
@@ -71,7 +76,7 @@ vines.register_vine = function( name, defs, biome )
     wield_image = "vines_"..name..".png",
     drawtype = drawtype,
     inventory_image = "vines_"..name..".png",
-    groups = vines.groups,
+    groups = groups,
     sounds = default.node_sound_leaves_defaults(),
     selection_box = selection_box,
     on_destruct = function( pos )
@@ -94,7 +99,6 @@ vines.register_vine = function( name, defs, biome )
       local node = nodes[ index ]
       if index > #nodes then return registered end
       if minetest.registered_nodes[node] then
-        print('overiding: '..node)
         minetest.override_item( node, defs )
         registered[#registered+1] = node
       end

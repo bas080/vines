@@ -10,11 +10,20 @@
 - Jungle vines that spawn on the side of jungletrees
 
 ## API
-The API is very minimal. It allows the registering of vines.
+The API is very minimal. It allows the registering of vines and the spawning of
+existing vines on nodes of your own.
+
+If you want vines to spawn on a certain node then you can choose which vine you
+would like to spawn on by adding to the node it's group one of the following.
+
+
+
+
 
 There are two types of vines. One that spawns at the bottom of nodes and uses the
 plantlike drawtype, and vines that spawn on the side that use signlike
-drawtype.
+drawtype. The type is determined by the spawn_on_side property in the biome
+table.
 
 ### Example
 *taken from mod*
