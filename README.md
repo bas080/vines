@@ -20,19 +20,25 @@ drawtype.
 *taken from mod*
 
 ```lua
+
+  vines.register_vine( name, definitions, biome )
+
+  --e.g.
+
   vines.register_vine( 'vine', {
     description = "Vines",
-    is_side_vine = false,
     average_length = 9
   }, biome )
+
 ```
 
+### definitions
 |key|           type|  description|
 |---|           ---|   ---|
-|description|   string|The node tooltip description|
-|is_side_vine|  bool|  If not a side vine it is a plantlike drawtype bottom vine|
+|description|   string|The vine's tooltip description|
 |average_length|int|   The average length of vines|
-|biome|         table| A plants_lib biome format (see plants_lib documentation)|
+
+For biome definitions please see the [plants_lib API documentation](https://github.com/VanessaE/plantlife_modpack/blob/master/API.txt)
 
 ## Notice
 Vines use after_destruct on registered leave nodes to remove vines from which
