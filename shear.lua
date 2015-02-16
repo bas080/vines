@@ -1,6 +1,6 @@
 minetest.register_tool("vines:shears", {
   description = "Shears",
-  inventory_image = "shears.png",
+  inventory_image = "vines_shears.png",
   wield_image = "shears.png",
   stack_max = 1,
   max_drop_level=3,
