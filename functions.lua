@@ -1,41 +1,41 @@
 vines.register_vine = function( name, defs, biome )
   --different properties for bottom and side vines.
-  local drop_node = 'vines:'..name
-  local drawtype = ''
   local selection_box
   local groups = { vines=1, snappy=3, flammable=2 }
 
-  local group_name = name..'_vines'
-  biome.spawn_surfaces[ #biome.spawn_surfaces ] = group_name
+  local vine_name_end = 'vines:'..name..'_end'
+  local vine_name_middle = 'vines:'..name..'_middle'
 
-  if ( biome.spawn_on_side ) then
-    selection_box = {
-      type = "wallmounted",
-    }
-    drawtype = 'signlike'
-  else
-    selection_box = {
-      type = "fixed",
-      fixed = { -0.4, -1/2, -0.4, 0.4, 1/2, 0.4 },
-    }
+  local vine_image_end = "vines_"..name.."_end.png"
+  local vine_image_middle = "vines_"..name.."_middle.png"
+
+  local drop_node = vine_name_end
+
+  biome.spawn_plants = { vine_name_end }
+
+  local vine_group = 'group:'..name..'_vines'
+  biome.spawn_surfaces[ #biome.spawn_surfaces + 1 ] = vine_group
+
+  local selection_box = { type = "wallmounted", }
+  local drawtype = 'signlike'
+  if ( not biome.spawn_on_side ) then
+    selection_box = { type = "fixed", fixed = { -0.4, -1/2, -0.4, 0.4, 1/2, 0.4 }, }
     drawtype = 'plantlike'
   end
 
-  biome.spawn_plants = { "vines:"..name }
-
-  minetest.register_node( "vines:"..name, {
+  minetest.register_node( vine_name_end, {
     description = defs.description,
     walkable = false,
     climbable = true,
-    wield_image = "vines_"..name..".png",
+    wield_image = vine_image_end,
     drop = "",
     sunlight_propagates = true,
     paramtype = "light",
     paramtype2 = "wallmounted",
     buildable_to = true,
-    tile_images = { "vines_"..name..".png" },
+    tile_images = { vine_image_end },
     drawtype = drawtype,
-    inventory_image = "vines_"..name..".png",
+    inventory_image = vine_image_end,
     groups = groups,
     sounds = default.node_sound_leaves_defaults(),
     selection_box = selection_box,
@@ -49,7 +49,7 @@ vines.register_vine = function( name, defs, biome )
       local bottom_node = minetest.get_node( bottom )
       if bottom_node.name == "air" then
         if not ( math.random( defs.average_length ) == 1 ) then
-          minetest.set_node( pos, { name = node.name..'_rotten', param2 = node.param2 } )
+          minetest.set_node( pos, { name = vine_name_middle, param2 = node.param2 } )
           minetest.set_node( bottom, { name = node.name, param2 = node.param2 } )
           local timer = minetest.get_node_timer( bottom_node )
           timer:start( math.random(5, 10) )
@@ -61,10 +61,9 @@ vines.register_vine = function( name, defs, biome )
     end
   })
 
-  local name = name..'_rotten'
 
-  minetest.register_node( "vines:"..name, {
-    description = "Rotten "..defs.description,
+  minetest.register_node( vine_name_middle, {
+    description = "Matured "..defs.description,
     walkable = false,
     climbable = true,
     drop = "",
@@ -72,10 +71,10 @@ vines.register_vine = function( name, defs, biome )
     paramtype = "light",
     paramtype2 = "wallmounted",
     buildable_to = true,
-    tile_images = { "vines_"..name..".png" },
-    wield_image = "vines_"..name..".png",
+    tile_images = { vine_image_middle },
+    wield_image = vine_image_middle,
     drawtype = drawtype,
-    inventory_image = "vines_"..name..".png",
+    inventory_image = vine_image_middle,
     groups = groups,
     sounds = default.node_sound_leaves_defaults(),
     selection_box = selection_box,
