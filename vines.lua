@@ -5,7 +5,7 @@ vines.register_vine( 'root', {
   choose_random_wall = true,
   avoid_nodes = {"vines:root_middle"},
   avoid_radius = 5,
-  spawn_delay = 5,
+  spawn_delay = 500,
   spawn_chance = 10,
   spawn_surfaces = {
     "default:dirt_with_grass",
