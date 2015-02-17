@@ -2,26 +2,25 @@ vines.register_vine( 'root', {
   description = "Roots",
   average_length = 9,
 },{
-  avoid_nodes = {"vines:root_rotten"},
+  choose_random_wall = true,
+  avoid_nodes = {"vines:root_middle"},
   avoid_radius = 5,
-  spawn_delay = 500,
+  spawn_delay = 5,
   spawn_chance = 10,
   spawn_surfaces = {
     "default:dirt_with_grass",
     "default:dirt"
   },
   spawn_on_bottom = true,
-  plantlife_limit = -0.1,
-  temp_max = -0.6,
-  temp_min = 0.2,
-  humidity_max = -0.7,
-  humidity_min = 0.2,
+  plantlife_limit = -0.6,
+  humidity_min = 0.4,
 })
 
 vines.register_vine( 'vine', {
   description = "Vines",
   average_length = 5,
 },{
+  choose_random_wall = true,
   avoid_nodes = {"group:vines"},
   avoid_radius = 5,
   spawn_delay = 500,
@@ -35,18 +34,17 @@ vines.register_vine( 'vine', {
   },
   spawn_on_bottom = true,
   plantlife_limit = -0.9,
-  humidity_max = -1,
-  humidity_min = 0.8,
-  temp_max = -0.5,
-  temp_min = 0.3,
+  humidity_min = 0.7,
 })
 
 vines.register_vine( 'side', {
   description = "Vines",
-  average_length = 7,
+  average_length = 3,
 },{
+  choose_random_wall = true,
   avoid_nodes = {"group:vines"},
-  avoid_radius = 5,
+  choose_random_wall = true,
+  avoid_radius = 3,
   spawn_delay = 500,
   spawn_chance = 100,
   spawn_surfaces = {
@@ -58,16 +56,14 @@ vines.register_vine( 'side', {
   },
   spawn_on_side = true,
   plantlife_limit = -0.9,
-  humidity_max = 1,
-  humidity_min = 0.8,
-  temp_min = 0.1,
-  temp_max = 1,
+  humidity_min = 0.4,
 })
 
 vines.register_vine( 'jungle', {
   description = "Jungle Vines",
   average_length = 7,
 },{
+  choose_random_wall = true,
   avoid_nodes = {"group:vines"},
   avoid_radius = 5,
   spawn_delay = 500,
@@ -77,24 +73,23 @@ vines.register_vine( 'jungle', {
     "moretrees:jungletree_trunk"
   },
   spawn_on_side = true,
-  plantlife_limit = -0.9,
-  humidity_max = 1,
-  humidity_min = 0.8,
-  temp_min = 0.1,
-  temp_max = 1,
+  plantlife_limit = -0.4,
+  humidity_min = 0.2,
 })
 
 vines.register_vine( 'willow', {
   description = "Willow Vines",
   average_length = 9,
 },{
+  choose_random_wall = true,
   avoid_nodes = { "vines:willow_middle" },
   avoid_radius = 5,
   near_nodes = { 'default:water_source' },
   near_nodes_size = 20,
-  plantlife_limit = -0.7,
+  plantlife_limit = -0.8,
   spawn_chance = 10,
   spawn_delay = 500,
   spawn_on_side = true,
   spawn_surfaces = {"moretrees:willow_leaves"},
+  humidity_min = 0.5
 })
