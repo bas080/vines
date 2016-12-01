@@ -82,8 +82,15 @@ vines.register_vine = function( name, defs, biome )
       local node = minetest.get_node( pos )
       local bottom = {x=pos.x, y=pos.y-1, z=pos.z}
       local bottom_node = minetest.get_node( bottom )
-      if minetest.get_item_group( bottom_node.name, "vines") then
-        minetest.remove_node( bottom )
+
+      -- get_item_group seems to be the right way to check the nature
+      -- of the node below us, but that function may have a bug that
+      -- causes out-of-memory crashes
+      --if minetest.get_item_group( bottom_node.name, "vines") then
+      if bottom_node.name == vine_name_middle or bottom_node.name == vine_name_end then
+        -- using "return" here causes Lua to use tail-call optimization,
+        -- reducing memory load of recursive calls
+        return minetest.remove_node( bottom )
       end
     end,
     after_dig_node = function( pos, node, oldmetadata, user )
@@ -94,7 +101,7 @@ vines.register_vine = function( name, defs, biome )
   biome_lib:spawn_on_surfaces( biome )
 
   local override_nodes = function( nodes, defs )
-  local function override( index, registered )
+    local function override( index, registered )
       local node = nodes[ index ]
       if index > #nodes then return registered end
       if minetest.registered_nodes[node] then
@@ -130,3 +137,4 @@ vines.dig_vine = function( pos, node_name, user )
     end
   end
 end
+
