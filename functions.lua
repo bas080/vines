@@ -61,7 +61,6 @@ vines.register_vine = function( name, defs, biome )
     end
   })
 
-
   minetest.register_node( vine_name_middle, {
     description = "Matured "..defs.description,
     walkable = false,
@@ -83,7 +82,7 @@ vines.register_vine = function( name, defs, biome )
       local bottom = {x=pos.x, y=pos.y-1, z=pos.z}
       local bottom_node = minetest.get_node( bottom )
       if minetest.get_item_group( bottom_node.name, "vines") then
-        minetest.remove_node( bottom )
+        minetest.after( 0, minetest.remove_node, bottom )
       end
     end,
     after_dig_node = function( pos, node, oldmetadata, user )
