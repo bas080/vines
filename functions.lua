@@ -81,7 +81,7 @@ vines.register_vine = function( name, defs, biome )
       local node = minetest.get_node( pos )
       local bottom = {x=pos.x, y=pos.y-1, z=pos.z}
       local bottom_node = minetest.get_node( bottom )
-      if minetest.get_item_group( bottom_node.name, "vines") then
+      if minetest.get_item_group( bottom_node.name, "vines") > 0 then
         minetest.after( 0, minetest.remove_node, bottom )
       end
     end,
