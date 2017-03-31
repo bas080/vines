@@ -104,7 +104,7 @@ vines.register_vine = function( name, defs, biome )
   end
 
   override_nodes( biome.spawn_surfaces,{
-    after_destruct = function( pos )
+    on_destruct = function( pos )
       local pos_min = { x = pos.x -1, y = pos.y - 1, z = pos.z - 1 }
       local pos_max = { x = pos.x +1, y = pos.y + 1, z = pos.z + 1 }
       local positions = minetest.find_nodes_in_area( pos_min, pos_max, "group:vines" )
