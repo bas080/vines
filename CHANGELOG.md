@@ -1,9 +1,5 @@
 # Changelog
 
-## 0.0.1 - 2026-03-02
-
-- Added license to textures.
-
 ## 0.0.0 - 2026-03-02
 
 - Rope block for spawning rope that slowly drops into the deep.
