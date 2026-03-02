@@ -12,7 +12,11 @@ Original mod by bas080; changes to the mod taken from plantlife.
 - Spawns vines on trees located in swampy area.
 - Jungle vines that spawn on the side of jungletrees
 
-### Contributors
+## Development
+
+See [development branch][development_branch].
+
+## Contributors
 
 - Auke Kok
 - bas080
@@ -31,3 +35,5 @@ Original mod by bas080; changes to the mod taken from plantlife.
 - Vanessa Dannenberg
 - Vanessa Ezekowitz
 - TenPlus1
+
+[development_branch]:https://github.com/bas080/vines/tree/development
