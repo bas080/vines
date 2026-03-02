@@ -3,6 +3,209 @@ vines = {
 	recipes = {}
 }
 
+
+local flat_to_down = {
+	[0] = 4,
+	[1] = 13,
+	[2] = 10,
+	[3] = 19,
+}
+
+local down_to_flat = {
+	[10] = 0,
+	[4] = 2,
+	[19] = 1,
+	[2] = 3
+}
+
+local function copy_node(old_pos, new_pos)
+		-- get old node and metadata
+	local node = minetest.get_node(old_pos)
+	local meta = minetest.get_meta(old_pos):to_table()  -- full metadata table
+
+	-- set node at new position
+	minetest.set_node(new_pos, node)
+
+	-- restore metadata
+	local new_meta = minetest.get_meta(new_pos)
+	new_meta:from_table(meta)
+end
+
+local down = {x=0,y=-1,z=0}
+local up   = {x=0,y=1,z=0}
+
+
+core.register_node("vines:next_end", {
+		tiles = {"vines_willow_end.png^[transformR180"},
+		escription = "Next Vines end",
+
+		
+		drawtype = "nodebox",
+		paramtype = "light",
+		paramtype2 = "facedir",
+
+		node_box = {
+		    type = "fixed",
+		    fixed = {
+		        {-0.5, -0.5, -0.5, 0.5, -0.499, 0.5},  -- front plane
+		    }
+		}    ,
+
+   
+
+    walkable = false,
+    climbable = true,
+    groups = {snappy = 3, vine = 1},
+
+    on_construct = function(pos)
+    		-- We swap node because cannot set after placing.
+    		-- Should only do this initially 
+
+				core.swap_node(pos, { name = "vines:next_end", param2 = math.random(0,3)})
+
+        minetest.get_node_timer(pos):start(1.5)
+    end,
+
+    on_timer = function(pos)
+        local node = minetest.get_node(pos)
+        local dir = minetest.facedir_to_dir(node.param2)
+
+        -- Stop if dir is invalid for whatever reason
+        if dir == nil then return false end;
+
+        -- dice stop (1 in 8) Nice and long for now
+        if math.random(1,16) == 1 then
+            return false
+        end
+
+        local straight = vector.add(pos, dir)
+
+        function horizontal()
+
+        	if core.get_node(straight).name ~= 'air' then
+        		return false
+        	end
+
+        	local drop = vector.add(straight, down)
+
+        	-- Should start dropping
+        	if core.get_node(drop).name == 'air' then
+        		return drop, flat_to_down[node.param2]
+        	end
+
+        	return straight, node.param2
+        end
+
+        function vertical()
+        	-- Keep dropping if you can.
+        	if core.get_node(straight).name == 'air' then
+        		return straight, node.param2
+        	end
+        	
+        	-- Have to make a turn, checking if there is air.
+        	core.log(dump({node.param2, down_to_flat[node.param2]}))
+        	local np = vector.add(pos, core.facedir_to_dir(down_to_flat[node.param2]))
+
+        	if core.get_node(np).name ~= 'air' then
+        		return false
+        	end
+
+        	return np, down_to_flat[node.param2]
+        end
+
+        function next_pos()
+        	if dir.y == 1 then
+        		return horizontal()
+        	else
+        		return vertical()
+        	end
+        end
+
+        local np, param2 = next_pos()
+
+        if np == false then return false end
+
+        -- core.log(dump(np))
+
+
+        minetest.set_node(pos, {
+        	name = "vines:next_middle",
+        	param2 = node.param2
+        })
+
+
+        -- If changing direction we have to recompute the param2.
+        -- We can very simply map direction to param2
+        -- We also need to know where it was coming from
+        -- {...{previous_param2, direction, new_param2}} = 
+        minetest.swap_node(np, {
+            name = "vines:next_end",
+            param2 = param2
+        })
+
+      	minetest.get_node_timer(np):start(1.5)
+
+
+        return true
+    end,
+})
+
+core.register_node("vines:next_middle", {
+		tiles = {"vines_willow_middle.png"},
+
+		drawtype = "nodebox",
+		paramtype = "light",
+		paramtype2 = "facedir",
+
+
+    
+node_box = {
+    type = "fixed",
+    fixed = {
+        {-0.5, -0.5, -0.5, 0.5, -0.499, 0.5},  -- front plane
+    }
+}    ,
+
+selection_box = {
+    type = "fixed",
+    fixed = {
+        {-0.5, -0.5, -0.5, 0.5, -0.499, 0.5},  -- front plane
+    }
+}    ,
+
+		description = "Next vines",
+    walkable = false,
+    climbable = true,
+    sunlight_propagates = true,
+    groups = {snappy = 3, vine = 1},
+})
+
+--------------------
+-- 
+
+minetest.register_node("vines:jungle_middle", {
+    description = "Jungle Vine",
+    drawtype = "nodebox",
+    paramtype = "light",
+    paramtype2 = "facedir",
+    walkable = false,
+    climbable = true,
+    sunlight_propagates = true,
+    groups = {snappy = 3, vine = 1, not_in_creative_inventory = 1},
+
+    node_box = {
+        type = "fixed",
+        fixed = {-1/16, -0.5, -1/16, 1/16, 0.5, 1/16}
+    },
+
+    selection_box = {
+        type = "fixed",
+        fixed = {-1/16, -0.5, -1/16, 1/16, 0.5, 1/16}
+    },
+
+    drop = "vines:jungle_end",
+})
+
 local enable_vines = minetest.settings:get_bool("vines_enable_vines", true)
 local enable_rope = minetest.settings:get_bool("vines_enable_rope", true)
 local enable_roots = minetest.settings:get_bool("vines_enable_roots", true)
