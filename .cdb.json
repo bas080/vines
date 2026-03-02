@@ -1,9 +1,9 @@
 {
-   "license" : "LGPL-2.1",
-   "media_license" : "CC0",
+   "dev_state" : "ACTIVELY_DEVELOPED",
+   "license" : "LGPL-2.1-only",
+   "media_license" : "CC0-1.0",
    "name" : "vines",
-   "type" : "MOD",
-   "title" : "Vines",
    "short_description" : "Add vines and the ropebox to your world",
-   "dev_state" : "ACTIVELY_DEVELOPED"
+   "title" : "Vines",
+   "type" : "MOD"
 }
