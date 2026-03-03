@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.0.0 - 2026-03-02
+## 0.0.0
 
 - Rope block for spawning rope that slowly drops into the deep.
 - Vines are climbable and slowly grow downward.
