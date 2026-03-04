@@ -96,7 +96,6 @@ local function on_dig(pos, node, player)
 end
 
 vines.register_vine = function( name, defs, def )
-
 	local groups = {vines = 1, snappy = 3, flammable = 2}
 	local vine_name_end = 'vines:' .. name .. '_end'
 	local vine_name_middle = 'vines:' .. name .. '_middle'
@@ -195,6 +194,7 @@ vines.register_vine = function( name, defs, def )
 
 	local spawn_plants = function(pos)
 		local param2 = 0
+		pos = vector.add(pos, up)
 
 		-- if def.spawn_on_bottom then -- spawn under e.g. leaves
 				-- TODO: Figure out what this means.
@@ -207,17 +207,18 @@ vines.register_vine = function( name, defs, def )
 			-- end
 			-- elseif def.spawn_on_side then
 		if def.spawn_on_side then
-			pos = vector.add(pos, up)
 			param2 = math.random(0, 3) -- Consider using seed randomness.
 		end
 
-		while true do
-			core.set_node(pos, {
-				name = vine_name_end,
-				param2 = param2,
-			})
+		core.set_node(pos, {
+			name = vine_name_end,
+			param2 = param2,
+		})
 
-			local next_pos = on_grow(pos)
+		local next_pos = pos
+
+		while true do
+			next_pos = on_grow(next_pos)
 			if next_pos == nil then
 				break
 			end
@@ -320,10 +321,11 @@ vines.register_vine = function( name, defs, def )
 
 	minetest.register_decoration({
 		name = "vines:" .. name,
-		decoration = {vine_name_end},
+		decoration = {'air'},
 		fill_ratio = def.rarity,
 		y_min = -16,
 		y_max = 48,
+		place_offset_y = 0,
 		param2 = 0,
 		param2_max = 3,
 		place_on = def.place_on,
@@ -444,6 +446,7 @@ if enable_rope ~= false then
 		is_ground_content = false,
 		drop = {},
 		tiles = {"vines_rope.png"},
+		waving = 2,
 		drawtype = "plantlike",
 		groups = {flammable = 2, not_in_creative_inventory = 1},
 		sounds = default.node_sound_leaves_defaults(),
@@ -457,6 +460,7 @@ if enable_rope ~= false then
 		description = S("Rope"),
 		walkable = false,
 		climbable = true,
+		waving = 2,
 		sunlight_propagates = true,
 		is_ground_content = false,
 		paramtype = "light",
@@ -490,7 +494,7 @@ if enable_rope ~= false then
 			local p = {x = pos.x, y = pos.y - 1, z = pos.z}
 			local n = minetest.get_node(p)
 
-			if	n.name == "air" then
+			if n.name == "air" then
 
 				minetest.set_node(pos, {name = "vines:rope"})
 				minetest.add_node(p, {name = "vines:rope_end"})
