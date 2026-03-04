@@ -1,8 +1,10 @@
+local modpath = minetest.get_modpath(minetest.get_current_modname())
+
 vines = {
 	name = 'vines',
-	recipes = {}
+	recipes = {},
+	modpath = modpath
 }
-
 
 local flat_to_down = {
 	[0] = 4,
@@ -11,200 +13,15 @@ local flat_to_down = {
 	[3] = 19,
 }
 
-local down_to_flat = {
-	[10] = 0,
-	[4] = 2,
-	[19] = 1,
-	[2] = 3
-}
-
-local function copy_node(old_pos, new_pos)
-		-- get old node and metadata
-	local node = minetest.get_node(old_pos)
-	local meta = minetest.get_meta(old_pos):to_table()  -- full metadata table
-
-	-- set node at new position
-	minetest.set_node(new_pos, node)
-
-	-- restore metadata
-	local new_meta = minetest.get_meta(new_pos)
-	new_meta:from_table(meta)
+local down_to_flat = {}
+for k, v in pairs(flat_to_down) do
+    down_to_flat[v] = k
 end
 
 local down = {x=0,y=-1,z=0}
 local up   = {x=0,y=1,z=0}
 
-
-core.register_node("vines:next_end", {
-		tiles = {"vines_willow_end.png^[transformR180"},
-		escription = "Next Vines end",
-
-		
-		drawtype = "nodebox",
-		paramtype = "light",
-		paramtype2 = "facedir",
-
-		node_box = {
-		    type = "fixed",
-		    fixed = {
-		        {-0.5, -0.5, -0.5, 0.5, -0.499, 0.5},  -- front plane
-		    }
-		}    ,
-
-   
-
-    walkable = false,
-    climbable = true,
-    groups = {snappy = 3, vine = 1},
-
-    on_construct = function(pos)
-    		-- We swap node because cannot set after placing.
-    		-- Should only do this initially 
-
-				core.swap_node(pos, { name = "vines:next_end", param2 = math.random(0,3)})
-
-        minetest.get_node_timer(pos):start(1.5)
-    end,
-
-    on_timer = function(pos)
-        local node = minetest.get_node(pos)
-        local dir = minetest.facedir_to_dir(node.param2)
-
-        -- Stop if dir is invalid for whatever reason
-        if dir == nil then return false end;
-
-        -- dice stop (1 in 8) Nice and long for now
-        if math.random(1,16) == 1 then
-            return false
-        end
-
-        local straight = vector.add(pos, dir)
-
-        function horizontal()
-
-        	if core.get_node(straight).name ~= 'air' then
-        		return false
-        	end
-
-        	local drop = vector.add(straight, down)
-
-        	-- Should start dropping
-        	if core.get_node(drop).name == 'air' then
-        		return drop, flat_to_down[node.param2]
-        	end
-
-        	return straight, node.param2
-        end
-
-        function vertical()
-        	-- Keep dropping if you can.
-        	if core.get_node(straight).name == 'air' then
-        		return straight, node.param2
-        	end
-        	
-        	-- Have to make a turn, checking if there is air.
-        	core.log(dump({node.param2, down_to_flat[node.param2]}))
-        	local np = vector.add(pos, core.facedir_to_dir(down_to_flat[node.param2]))
-
-        	if core.get_node(np).name ~= 'air' then
-        		return false
-        	end
-
-        	return np, down_to_flat[node.param2]
-        end
-
-        function next_pos()
-        	if dir.y == 1 then
-        		return horizontal()
-        	else
-        		return vertical()
-        	end
-        end
-
-        local np, param2 = next_pos()
-
-        if np == false then return false end
-
-        -- core.log(dump(np))
-
-
-        minetest.set_node(pos, {
-        	name = "vines:next_middle",
-        	param2 = node.param2
-        })
-
-
-        -- If changing direction we have to recompute the param2.
-        -- We can very simply map direction to param2
-        -- We also need to know where it was coming from
-        -- {...{previous_param2, direction, new_param2}} = 
-        minetest.swap_node(np, {
-            name = "vines:next_end",
-            param2 = param2
-        })
-
-      	minetest.get_node_timer(np):start(1.5)
-
-
-        return true
-    end,
-})
-
-core.register_node("vines:next_middle", {
-		tiles = {"vines_willow_middle.png"},
-
-		drawtype = "nodebox",
-		paramtype = "light",
-		paramtype2 = "facedir",
-
-
-    
-node_box = {
-    type = "fixed",
-    fixed = {
-        {-0.5, -0.5, -0.5, 0.5, -0.499, 0.5},  -- front plane
-    }
-}    ,
-
-selection_box = {
-    type = "fixed",
-    fixed = {
-        {-0.5, -0.5, -0.5, 0.5, -0.499, 0.5},  -- front plane
-    }
-}    ,
-
-		description = "Next vines",
-    walkable = false,
-    climbable = true,
-    sunlight_propagates = true,
-    groups = {snappy = 3, vine = 1},
-})
-
---------------------
--- 
-
-minetest.register_node("vines:jungle_middle", {
-    description = "Jungle Vine",
-    drawtype = "nodebox",
-    paramtype = "light",
-    paramtype2 = "facedir",
-    walkable = false,
-    climbable = true,
-    sunlight_propagates = true,
-    groups = {snappy = 3, vine = 1, not_in_creative_inventory = 1},
-
-    node_box = {
-        type = "fixed",
-        fixed = {-1/16, -0.5, -1/16, 1/16, 0.5, 1/16}
-    },
-
-    selection_box = {
-        type = "fixed",
-        fixed = {-1/16, -0.5, -1/16, 1/16, 0.5, 1/16}
-    },
-
-    drop = "vines:jungle_end",
-})
+-- settings
 
 local enable_vines = minetest.settings:get_bool("vines_enable_vines", true)
 local enable_rope = minetest.settings:get_bool("vines_enable_rope", true)
@@ -221,30 +38,14 @@ local rarity_side = tonumber(minetest.settings:get("vines_rarity_side")) or defa
 local rarity_jungle = tonumber(minetest.settings:get("vines_rarity_jungle")) or default_rarity
 local rarity_willow = tonumber(minetest.settings:get("vines_rarity_willow")) or default_rarity
 
-local growth_min = tonumber(minetest.settings:get("vines_growth_min")) or 180
-local growth_max = tonumber(minetest.settings:get("vines_growth_max")) or 360
+local growth_min = tonumber(minetest.settings:get("vines_growth_min")) or 1
+local growth_max = tonumber(minetest.settings:get("vines_growth_max")) or 5
 
 -- support for i18n
 local S = minetest.get_translator("vines")
 
 local dids = {}
 local spawn_funcs = {}
-
-local function find_open_side(pos) -- copied from biome_lib
-	if minetest.get_node({ x=pos.x-1, y=pos.y, z=pos.z }).name == "air" then
-		return {newpos = { x=pos.x-1, y=pos.y, z=pos.z }, facedir = 2}
-	end
-	if minetest.get_node({ x=pos.x+1, y=pos.y, z=pos.z }).name == "air" then
-		return {newpos = { x=pos.x+1, y=pos.y, z=pos.z }, facedir = 3}
-	end
-	if minetest.get_node({ x=pos.x, y=pos.y, z=pos.z-1 }).name == "air" then
-		return {newpos = { x=pos.x, y=pos.y, z=pos.z-1 }, facedir = 4}
-	end
-	if minetest.get_node({ x=pos.x, y=pos.y, z=pos.z+1 }).name == "air" then
-		return {newpos = { x=pos.x, y=pos.y, z=pos.z+1 }, facedir = 5}
-	end
-	return nil
-end
 
 -- ITEMS
 
@@ -294,63 +95,137 @@ local function on_dig(pos, node, player)
 	end
 end
 
-local function ensure_vine_end(pos, oldnode)
-	local np = {x = pos.x, y = pos.y + 1, z = pos.z}
-	local nn = minetest.get_node(np)
-
-	local vine_name_end = oldnode.name:gsub("_middle", "_end")
-
-	if minetest.get_item_group(nn.name, "vines") > 0 then
-		minetest.swap_node(np, { name = vine_name_end, param2 = oldnode.param2 })
-		minetest.registered_items[vine_name_end].on_construct(np, minetest.get_node(np))
-	end
-end
-
-
 vines.register_vine = function( name, defs, def )
 
 	local groups = {vines = 1, snappy = 3, flammable = 2}
 	local vine_name_end = 'vines:' .. name .. '_end'
 	local vine_name_middle = 'vines:' .. name .. '_middle'
-	local vine_image_end = "vines_" .. name .. "_end.png"
-	local vine_image_middle = "vines_" .. name .. "_middle.png"
+	local vine_image_end = "vines_" .. name .. "_end.png^[transformR180"
+	local vine_wield_image_middle = "vines_" .. name .. "_middle.png"
+	local vine_wield_image_end = "vines_" .. name .. "_end.png"
+	local vine_image_middle = "vines_" .. name .. "_middle.png^[transformR180"
+
+	local function ensure_vine_end(pos)
+		local parent_pos = vector.from_string(core.get_meta(pos):get_string('parent_pos'))
+
+		-- Not defined, most likely is the most parent of vines. The first vine node.
+		if parent_pos == nil then
+			return
+		end
+
+		local parent = core.get_node(parent_pos)
+
+		if parent.name == vine_name_middle then
+			core.swap_node(parent_pos, {
+				name = vine_name_end,
+				param2 = parent.param2,
+			})
+		end
+	end
+
+	
+	local on_grow = function(pos)
+			if math.random(defs.average_length) == 1 then
+				return nil
+			end
+
+       local node = minetest.get_node(pos)
+        local dir = minetest.facedir_to_dir(node.param2)
+
+        local grow = function(p, param2)
+
+	        minetest.set_node(p, {
+	            name = vine_name_end,
+	            param2 = param2,
+	        })
+
+        	core.get_meta(p):set_string('parent_pos', vector.to_string(pos))
+
+	        -- We swap so we keep the meta data of the vine end around.
+	        -- This is later used to set a middle node to end node when node breaks.
+	        minetest.swap_node(pos, {
+	        	name = vine_name_middle,
+	        	param2 = node.param2,
+	        })
+
+	      	return p
+        end
+
+        if node.param2 > 3 then -- is growing downward
+        	local bottom_pos = vector.add(pos, down)
+
+        	if core.get_node(bottom_pos).name == 'air' then
+        		return grow(bottom_pos, node.param2)
+        	end
+
+        	local next_param2 = (down_to_flat[node.param2] + 2) % 4
+        	local next_dir = core.facedir_to_dir(next_param2)
+        	local next_pos = vector.add(pos, next_dir)
+
+        	-- TODO: specific case where should check if diag under is empty. Then place there and flip 180 degrees vertically.
+
+        	if core.get_node(next_pos).name == 'air' then
+        		return grow(next_pos, next_param2)
+        	end
+        else -- is growing sideways
+        	local next_pos = vector.add(pos, dir)
+        	local diag_pos = vector.add(next_pos, down)
+
+        	if core.get_node(next_pos).name ~= 'air' then
+        		-- stop growing. Wall in the way
+        		return nil
+        	end
+
+        	local diag_node = core.get_node(diag_pos)
+
+        	if diag_node.name== 'air' then -- vine is wrapping down
+        		local param2 = flat_to_down[node.param2]
+        		return grow(diag_pos, param2)
+        	end
+
+        	-- Is the node strong enough to grow onto?
+					if minetest.registered_nodes[diag_node.name].buildable_to == true then
+        		return nil
+        	end
+
+        	-- Keep growing flat.
+        	return grow(next_pos, node.param2)
+        end
+  end
 
 	local spawn_plants = function(pos)
 		local param2 = 0
 
-		if def.spawn_on_bottom then -- spawn under e.g. leaves
-			local newpos = vector.new(pos.x, pos.y - 1, pos.z)
-			if minetest.get_node(pos).name ~= "air" and minetest.get_node(newpos).name == "air" then
-				-- (1) prevent floating vines; (2) is there even space?
-				pos = newpos
-			else
-				return
-			end
-		elseif def.spawn_on_side then
-			local onside = find_open_side(pos)
-			if onside then
-				pos = onside.newpos
-				param2 = onside.facedir
-			else
-				return
-			end
+		-- if def.spawn_on_bottom then -- spawn under e.g. leaves
+				-- TODO: Figure out what this means.
+			-- local newpos = vector.new(pos.x, pos.y - 1, pos.z)
+			-- if minetest.get_node(pos).name ~= "air" and minetest.get_node(newpos).name == "air" then
+			-- 	-- (1) prevent floating vines; (2) is there even space?
+			-- 	pos = newpos
+			-- else
+			-- 	return
+			-- end
+			-- elseif def.spawn_on_side then
+		if def.spawn_on_side then
+			pos = vector.add(pos, up)
+			param2 = math.random(0, 3) -- Consider using seed randomness.
 		end
 
-		local max_length = math.random(defs.average_length)
-		local current_length = 1
-		-- print("Generate " .. name .. " at " .. minetest.pos_to_string(pos))
-		if minetest.get_node({ x=pos.x, y=pos.y - 1, z=pos.z }).name == 'air' then
-			while minetest.get_node({ x=pos.x, y=pos.y - 1, z=pos.z }).name == 'air' and current_length < max_length do
-				minetest.set_node(pos, { name = vine_name_middle, param2 = param2 })
-				pos.y = pos.y - 1
-				current_length = current_length + 1
+		while true do
+			core.set_node(pos, {
+				name = vine_name_end,
+				param2 = param2,
+			})
+
+			local next_pos = on_grow(pos)
+			if next_pos == nil then
+				break
 			end
-			minetest.set_node(pos, { name = vine_name_end, param2 = param2 })
 		end
 	end
 
 	local selection_box = {type = "wallmounted",}
-	local drawtype = 'signlike'
+	local drawtype = 'nodebox'
 
 	-- different properties for bottom and side vines.
 	if not def.spawn_on_side then
@@ -366,89 +241,94 @@ vines.register_vine = function( name, defs, def )
 		description = defs.description,
 		walkable = false,
 		climbable = true,
-		wield_image = vine_image_end,
+		waving = 2,
+		wield_image = vine_wield_image_end,
 		drop = {},
 		sunlight_propagates = true,
 		paramtype = "light",
-		paramtype2 = "wallmounted",
+		paramtype2 = "facedir",
 		is_ground_content = false,
-		buildable_to = false,
+		buildable_to = true,
 		tiles = {vine_image_end .. (drawtype == "plantlike" and "^[transformR180" or "")},
 		drawtype = drawtype,
-		inventory_image = vine_image_end,
+		inventory_image = vine_wield_image_end,
 		groups = groups,
 		sounds = default.node_sound_leaves_defaults(),
-		selection_box = selection_box,
+		node_box = {
+		    type = "fixed",
+		    fixed = {
+		        {-0.5, -0.5, -0.5, 0.5, -0.499, 0.5},
+		    }
+		},
 
-		on_construct = function(pos)
-
-			local timer = minetest.get_node_timer(pos)
-			timer:start(math.random(growth_min, growth_max))
-		end,
+    after_place_node = function(pos, placer, itemstack, pointed_thing)
+      core.get_node_timer(pos):start(1 or math.random(growth_min, growth_max))
+    end,
 
 		on_timer = function(pos)
+			core.log('on_timer')
+			local newpos = on_grow(pos)
 
-			local node = minetest.get_node(pos)
-			local bottom = {x = pos.x, y = pos.y - 1, z = pos.z}
-			local bottom_node = minetest.get_node( bottom )
-			if bottom_node.name == "air" then
-
-				if math.random(defs.average_length) ~= 1 then
-
-					minetest.swap_node(pos, {
-							name = vine_name_middle, param2 = node.param2})
-
-					minetest.set_node(bottom, {
-							name = node.name, param2 = node.param2})
-
-					local timer = minetest.get_node_timer(bottom)
-
-					timer:start(math.random(growth_min, growth_max))
-				end
+			if newpos == nil then
+				return false
 			end
+
+      core.get_node_timer(newpos):start(1 or math.random(growth_min, growth_max))
 		end,
 
 		on_dig = on_dig,
 
-		after_destruct = function(pos, oldnode)
-			ensure_vine_end(pos, oldnode)
+		on_destruct = function(pos)
+			ensure_vine_end(pos)
 		end,
 	})
 
-	minetest.register_node( vine_name_middle, {
+	minetest.register_node(vine_name_middle, {
 		description = S("Matured") .. " " .. defs.description,
 		walkable = false,
 		climbable = true,
+		waving = 2,
 		drop = {},
 		sunlight_propagates = true,
 		paramtype = "light",
 		is_ground_content = false,
-		paramtype2 = "wallmounted",
-		buildable_to = false,
+		paramtype2 = "facedir",
+		buildable_to = true,
 		tiles = {vine_image_middle},
-		wield_image = vine_image_middle,
+		wield_image = vine_wield_image_middle,
 		drawtype = drawtype,
-		inventory_image = vine_image_middle,
+		inventory_image = vine_wield_image_middle,
 		groups = groups,
 		sounds = default.node_sound_leaves_defaults(),
-		selection_box = selection_box,
+
+		-- TODO: implement on_place so users can place node on sides also.
+
+
+		node_box = {
+		    type = "fixed",
+		    fixed = {
+		        {-0.5, -0.5, -0.5, 0.5, -0.499, 0.5},  -- front plane
+		    }
+		},
 
 		on_dig = on_dig,
 
-		after_destruct = function(pos, oldnode)
-			ensure_vine_end(pos, oldnode)
+		on_destruct = function(pos)
+			ensure_vine_end(pos)
 		end,
 	})
 
 	minetest.register_decoration({
 		name = "vines:" .. name,
-		decoration = {"air"},
+		decoration = {vine_name_end},
 		fill_ratio = def.rarity,
 		y_min = -16,
 		y_max = 48,
+		param2 = 0,
+		param2_max = 3,
 		place_on = def.place_on,
 		deco_type = "simple",
-		flags = "all_floors, all_ceilings"
+		flags = def.spawn_on_bottom and "all_ceilings" or "all_floors"
 	})
 	dids[#dids + 1] = {name = name, spawn_func = spawn_plants}
 end
@@ -668,7 +548,7 @@ end
 -- STANDARD VINES
 if enable_standard ~= false then
 	vines.register_vine('vine',
-		{description = S("Vines"), average_length = 5}, {
+		{description = S("Vines"), average_length = 8}, {
 		place_on = {
 			"default:jungleleaves",
 			"moretrees:jungletree_leaves_red",
@@ -686,8 +566,9 @@ end
 -- SIDE VINES
 if enable_side ~= false then
 	vines.register_vine('side',
-		{description = S("Vines"), average_length = 6}, {
+		{description = S("Vines"), average_length = 6 }, {
 		place_on = {
+			"default:leaves",
 			"default:jungleleaves",
 			"moretrees:jungletree_leaves_red",
 			"moretrees:jungletree_leaves_yellow",
