@@ -1,5 +1,7 @@
 local modpath = minetest.get_modpath(minetest.get_current_modname())
 
+local one_px = 1 / 16
+
 vines = {
 	name = 'vines',
 	recipes = {},
@@ -12,6 +14,11 @@ local flat_to_down = {
 	[2] = 10,
 	[3] = 19,
 }
+
+local downs = {}
+for i = 0, 3 do
+    downs[#downs + 1] = flat_to_down[i]
+end
 
 local down_to_flat = {}
 for k, v in pairs(flat_to_down) do
@@ -63,6 +70,7 @@ local function on_dig(pos, node, player)
 	if not player or minetest.is_protected(pos, player:get_player_name()) then
 		return
 	end
+	-- TODO: why gsub! common! Consider moving into register fn
 	local vine_name_end = node.name:gsub("_middle", "_end")
 	local drop_item = "vines:vines"
 	if enable_vines == false then
@@ -194,7 +202,16 @@ vines.register_vine = function( name, defs, def )
 
 	local spawn_plants = function(pos)
 		local param2 = 0
-		pos = vector.add(pos, up)
+		if def.flags == "all_floors" then
+			param2 = math.random(0, 3) -- Consider using seed randomness.
+			pos = vector.add(pos, up)
+		elseif def.flags == "all_ceilings" then
+			pos = vector.add(pos, down)
+			param2 = downs[math.random(4)] -- Consider using seed randomness.
+		else
+			core.log('must defined flags')
+			return
+		end
 
 		-- if def.spawn_on_bottom then -- spawn under e.g. leaves
 				-- TODO: Figure out what this means.
@@ -206,9 +223,6 @@ vines.register_vine = function( name, defs, def )
 			-- 	return
 			-- end
 			-- elseif def.spawn_on_side then
-		if def.spawn_on_side then
-			param2 = math.random(0, 3) -- Consider using seed randomness.
-		end
 
 		core.set_node(pos, {
 			name = vine_name_end,
@@ -225,18 +239,12 @@ vines.register_vine = function( name, defs, def )
 		end
 	end
 
-	local selection_box = {type = "wallmounted",}
-	local drawtype = 'nodebox'
 
-	-- different properties for bottom and side vines.
-	if not def.spawn_on_side then
+	selection_box = {
+		type = "fixed", fixed = { -0.4, -1/2, -0.4, 0.4, 1/2, 0.4 }
+	}
 
-		selection_box = {
-			type = "fixed", fixed = { -0.4, -1/2, -0.4, 0.4, 1/2, 0.4 }
-		}
-
-		drawtype = 'plantlike'
-	end
+	drawtype = 'nodebox'
 
 	minetest.register_node(vine_name_end, {
 		description = defs.description,
@@ -250,7 +258,8 @@ vines.register_vine = function( name, defs, def )
 		paramtype2 = "facedir",
 		is_ground_content = false,
 		buildable_to = true,
-		tiles = {vine_image_end .. (drawtype == "plantlike" and "^[transformR180" or "")},
+		-- check what happens with the ugly vines. The end is flipped...
+		tiles = {vine_image_end, vine_image_end ..  "^[transformR180"},
 		drawtype = drawtype,
 		inventory_image = vine_wield_image_end,
 		groups = groups,
@@ -258,13 +267,23 @@ vines.register_vine = function( name, defs, def )
 		node_box = {
 		    type = "fixed",
 		    fixed = {
-		        {-0.5, -0.5, -0.5, 0.5, -0.499, 0.5},
+		        {-0.5, -0.5, -0.5, 0.5, -0.5 + one_px * 2, 0.5},
 		    }
 		},
 
-    after_place_node = function(pos, placer, itemstack, pointed_thing)
-      core.get_node_timer(pos):start(1 or math.random(growth_min, growth_max))
-    end,
+    	-- TODO: Figure out how to place against walls.
+    	-- Needs to turn a bit.
+		-- on_place = core.rotate_node,
+
+		-- after_place_node = function(pos, placer, itemstack, pointed_thing)
+		--     local node = minetest.get_node(pos)  -- get current node
+
+		--     -- TODO: This does not work. Does not place vines downward.
+		--     node.param2 = (node.param2 + 3) % 24
+		--     minetest.swap_node(pos, node)
+
+		--     minetest.get_node_timer(pos):start(math.random(growth_min, growth_max))
+		-- end,
 
 		on_timer = function(pos)
 			core.log('on_timer')
@@ -304,11 +323,10 @@ vines.register_vine = function( name, defs, def )
 
 		-- TODO: implement on_place so users can place node on sides also.
 
-
 		node_box = {
 		    type = "fixed",
 		    fixed = {
-		        {-0.5, -0.5, -0.5, 0.5, -0.499, 0.5},  -- front plane
+		        {-0.5, -0.5, -0.5, 0.5, -0.5 + one_px * 2, 0.5},
 		    }
 		},
 
@@ -326,11 +344,9 @@ vines.register_vine = function( name, defs, def )
 		y_min = -16,
 		y_max = 48,
 		place_offset_y = 0,
-		param2 = 0,
-		param2_max = 3,
 		place_on = def.place_on,
 		deco_type = "simple",
-		flags = def.spawn_on_bottom and "all_ceilings" or "all_floors"
+		flags = def.flags,
 	})
 	dids[#dids + 1] = {name = name, spawn_func = spawn_plants}
 end
@@ -541,7 +557,7 @@ if enable_roots ~= false then
 			"default:dirt_with_grass",
 			"default:dirt"
 		},
-		spawn_on_bottom = true,
+		flags = "all_ceilings",
 		rarity = rarity_roots,
 	})
 else
@@ -559,7 +575,7 @@ if enable_standard ~= false then
 			"moretrees:jungletree_leaves_yellow",
 			"moretrees:jungletree_leaves_green"
 		},
-		spawn_on_bottom = true,
+		flags = "all_ceilings",
 		rarity = rarity_standard,
 	})
 else
@@ -572,13 +588,12 @@ if enable_side ~= false then
 	vines.register_vine('side',
 		{description = S("Vines"), average_length = 6 }, {
 		place_on = {
-			"default:leaves",
 			"default:jungleleaves",
 			"moretrees:jungletree_leaves_red",
 			"moretrees:jungletree_leaves_yellow",
 			"moretrees:jungletree_leaves_green"
 		},
-		spawn_on_side = true,
+		flags = "all_floors",
 		rarity = rarity_side,
 	})
 else
@@ -594,7 +609,7 @@ if enable_jungle ~= false then
 			"default:jungletree",
 			"moretrees:jungletree_trunk"
 		},
-		spawn_on_side = true,
+		flags = "all_floors",
 		rarity = rarity_jungle,
 	})
 else
@@ -606,7 +621,7 @@ end
 if enable_willow ~= false then
 	vines.register_vine("willow",
 		{description = S("Willow Vines"), average_length = 9}, {
-		spawn_on_side = true,
+		flags = "all_floors",
 		place_on = {"moretrees:willow_leaves"},
 		rarity = rarity_willow,
 	})
