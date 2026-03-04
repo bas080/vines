@@ -1,3 +1,5 @@
+-- TODO: Instead of doing air check it might be better to create helpers to check if something is growable into or onto.
+
 local modpath = minetest.get_modpath(minetest.get_current_modname())
 
 local one_px = 1 / 16
@@ -165,15 +167,23 @@ vines.register_vine = function( name, defs, def )
         		return grow(bottom_pos, node.param2)
         	end
 
+        	-- otherwise we try to flip the vine or grow sideways.
         	local next_param2 = (down_to_flat[node.param2] + 2) % 4
         	local next_dir = core.facedir_to_dir(next_param2)
         	local next_pos = vector.add(pos, next_dir)
+        	local next_bottom_pos = vector.add(next_pos, down)
 
-        	-- TODO: specific case where should check if diag under is empty. Then place there and flip 180 degrees vertically.
-
-        	if core.get_node(next_pos).name == 'air' then
-        		return grow(next_pos, next_param2)
+        	if core.get_node(next_pos).name ~= 'air' then
+        		return nil
         	end
+
+        	-- specific case where should check if diag under is empty.
+        	-- this shifts the vine one node to growing direction and makes it vertical.
+					if core.get_node(next_bottom_pos).name == "air"  then
+						return grow(next_bottom_pos, flat_to_down[next_param2])
+					end
+
+        	return grow(next_pos, next_param2)
         else -- is growing sideways
         	local next_pos = vector.add(pos, dir)
         	local diag_pos = vector.add(next_pos, down)
@@ -206,6 +216,7 @@ vines.register_vine = function( name, defs, def )
 			param2 = math.random(0, 3) -- Consider using seed randomness.
 			pos = vector.add(pos, up)
 		elseif def.flags == "all_ceilings" then
+		-- TODO: The air checks need to come back to prevent spawning in air.
 			pos = vector.add(pos, down)
 			param2 = downs[math.random(4)] -- Consider using seed randomness.
 		else
