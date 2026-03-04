@@ -167,8 +167,14 @@ vines.register_vine = function( name, defs, def )
         		return grow(bottom_pos, node.param2)
         	end
 
+        	-- Someone or something has messed with the param2. Stop growth.
+        	local flat = down_to_flat[node.param2]
+        	if flat == nil then
+        		return nil
+        	end
+
         	-- otherwise we try to flip the vine or grow sideways.
-        	local next_param2 = (down_to_flat[node.param2] + 2) % 4
+        	local next_param2 = (flat + 2) % 4
         	local next_dir = core.facedir_to_dir(next_param2)
         	local next_pos = vector.add(pos, next_dir)
         	local next_bottom_pos = vector.add(next_pos, down)
@@ -282,19 +288,32 @@ vines.register_vine = function( name, defs, def )
 		    }
 		},
 
-    	-- TODO: Figure out how to place against walls.
-    	-- Needs to turn a bit.
-		-- on_place = core.rotate_node,
+		on_place = function(itemstack, placer, pointed_thing)
+			return core.rotate_and_place(itemstack, placer, pointed_thing, false, {}, false)
+		end,
 
-		-- after_place_node = function(pos, placer, itemstack, pointed_thing)
-		--     local node = minetest.get_node(pos)  -- get current node
+		after_place_node = function(pos, placer, itemstack, pointed_thing)
+		    local node = minetest.get_node(pos)  -- get current node
 
-		--     -- TODO: This does not work. Does not place vines downward.
-		--     node.param2 = (node.param2 + 3) % 24
-		--     minetest.swap_node(pos, node)
+		    local next_param2 = node.param2
 
-		--     minetest.get_node_timer(pos):start(math.random(growth_min, growth_max))
-		-- end,
+		    -- Rotate downward if placed on sides.
+		    if node.param2 > 3 then
+		    	-- TODO: Figure out why I need this exception.
+		    	if node.param2 == 7 then
+		    		next_param2 = next_param2 - 3
+		    	else
+		    		next_param2 = next_param2 + 1
+		    	end
+		    end
+
+		    core.swap_node(pos, {
+		    	name= node.name,
+		    	param2 = next_param2,
+		    })
+
+		    core.get_node_timer(pos):start(math.random(growth_min, growth_max))
+		end,
 
 		on_timer = function(pos)
 			core.log('on_timer')
