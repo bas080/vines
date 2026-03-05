@@ -260,11 +260,6 @@ vines.register_vine = function( name, defs, def )
 		end
 	end
 
-
-	selection_box = {
-		type = "fixed", fixed = { -0.4, -1/2, -0.4, 0.4, 1/2, 0.4 }
-	}
-
 	minetest.register_node(vine_name_end, {
 		description = defs.description,
 		walkable = false,
@@ -285,9 +280,7 @@ vines.register_vine = function( name, defs, def )
 		sounds = default.node_sound_leaves_defaults(),
 		node_box = {
 		    type = "fixed",
-		    fixed = {
-		        {-0.5, -0.5, -0.5, 0.5, -0.5 + one_px * 2, 0.5},
-		    }
+		    fixed = node_box_fixed,
 		},
 
 		on_place = function(itemstack, placer, pointed_thing)
