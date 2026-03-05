@@ -291,29 +291,21 @@ vines.register_vine = function( name, defs, def )
 		},
 
 		on_place = function(itemstack, placer, pointed_thing)
-			return core.rotate_and_place(itemstack, placer, pointed_thing, false, {}, false)
+			local dir = vector.direction(pointed_thing.under, pointed_thing.above)
+			local look_dir = placer:get_look_dir()
+			local param2
+
+			-- placing item on a wall
+			if dir.y == 0 then
+				param2 = flat_to_down[core.dir_to_facedir(dir)]
+			else  -- is placing the item flat on the ground or ceiling.
+				param2 = core.dir_to_facedir(look_dir)
+			end
+
+			return core.item_place(itemstack, placer, pointed_thing, param2)
 		end,
 
 		after_place_node = function(pos, placer, itemstack, pointed_thing)
-		    local node = minetest.get_node(pos)  -- get current node
-
-		    local next_param2 = node.param2
-
-		    -- Rotate downward if placed on sides.
-		    if node.param2 > 3 then
-		    	-- TODO: Figure out why I need this exception.
-		    	if node.param2 == 7 then
-		    		next_param2 = next_param2 - 3
-		    	else
-		    		next_param2 = next_param2 + 1
-		    	end
-		    end
-
-		    core.swap_node(pos, {
-		    	name= node.name,
-		    	param2 = next_param2,
-		    })
-
 		    core.get_node_timer(pos):start(math.random(growth_min, growth_max))
 		end,
 
