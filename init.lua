@@ -304,14 +304,13 @@ vines.register_vine = function( name, defs, def )
 		end,
 
 		on_timer = function(pos)
-			core.log('on_timer')
-			local newpos = on_grow(pos)
+				local newpos = on_grow(pos)
 
-			if newpos == nil then
-				return false
-			end
+				if newpos == nil then
+					return false
+				end
 
-      core.get_node_timer(newpos):start(1 or math.random(growth_min, growth_max))
+	      core.get_node_timer(newpos):start(1 or math.random(growth_min, growth_max))
 		end,
 
 		on_dig = on_dig,
