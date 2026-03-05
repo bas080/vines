@@ -226,24 +226,19 @@ vines.register_vine = function( name, defs, def )
 			param2 = math.random(0, 3) -- Consider using seed randomness.
 			pos = vector.add(pos, up)
 		elseif def.flags == "all_ceilings" then
-		-- TODO: The air checks need to come back to prevent spawning in air.
-			pos = vector.add(pos, down)
+			-- TODO: The air checks need to come back to prevent spawning in air.
+			newpos = vector.add(pos, down)
+
+			-- (1) prevent floating vines; (2) is there even space?
+			if core.get_node(pos).name == 'air' and core.get_node(newpos).name ~= "air" then
+				return
+			end
+
+			pos = newpos
 			param2 = downs[math.random(4)] -- Consider using seed randomness.
 		else
-			core.log('must defined flags')
-			return
+			error("Must defined flags")
 		end
-
-		-- if def.spawn_on_bottom then -- spawn under e.g. leaves
-				-- TODO: Figure out what this means.
-			-- local newpos = vector.new(pos.x, pos.y - 1, pos.z)
-			-- if minetest.get_node(pos).name ~= "air" and minetest.get_node(newpos).name == "air" then
-			-- 	-- (1) prevent floating vines; (2) is there even space?
-			-- 	pos = newpos
-			-- else
-			-- 	return
-			-- end
-			-- elseif def.spawn_on_side then
 
 		core.set_node(pos, {
 			name = vine_name_end,
