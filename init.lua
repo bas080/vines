@@ -4,6 +4,10 @@ local modpath = minetest.get_modpath(minetest.get_current_modname())
 
 local one_px = 1 / 16
 
+local node_box_fixed = {
+  {-0.5, -0.5 + one_px, -0.5, 0.5, -0.5 + one_px * 2, 0.5},
+}
+
 vines = {
 	name = 'vines',
 	recipes = {},
@@ -261,8 +265,6 @@ vines.register_vine = function( name, defs, def )
 		type = "fixed", fixed = { -0.4, -1/2, -0.4, 0.4, 1/2, 0.4 }
 	}
 
-	drawtype = 'nodebox'
-
 	minetest.register_node(vine_name_end, {
 		description = defs.description,
 		walkable = false,
@@ -276,8 +278,8 @@ vines.register_vine = function( name, defs, def )
 		is_ground_content = false,
 		buildable_to = true,
 		-- check what happens with the ugly vines. The end is flipped...
-		tiles = {vine_image_end, vine_image_end ..  "^[transformR180"},
-		drawtype = drawtype,
+		tiles = {vine_image_end, vine_image_end ..  "^[transform6"},
+		drawtype = 'nodebox',
 		inventory_image = vine_wield_image_end,
 		groups = groups,
 		sounds = default.node_sound_leaves_defaults(),
@@ -344,9 +346,9 @@ vines.register_vine = function( name, defs, def )
 		is_ground_content = false,
 		paramtype2 = "facedir",
 		buildable_to = true,
-		tiles = {vine_image_middle},
+		tiles = {vine_image_middle, vine_image_middle ..  "^[transform6"},
 		wield_image = vine_wield_image_middle,
-		drawtype = drawtype,
+		drawtype = 'nodebox',
 		inventory_image = vine_wield_image_middle,
 		groups = groups,
 		sounds = default.node_sound_leaves_defaults(),
@@ -355,9 +357,7 @@ vines.register_vine = function( name, defs, def )
 
 		node_box = {
 		    type = "fixed",
-		    fixed = {
-		        {-0.5, -0.5, -0.5, 0.5, -0.5 + one_px * 2, 0.5},
-		    }
+		    fixed = node_box_fixed,
 		},
 
 		on_dig = on_dig,
