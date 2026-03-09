@@ -4,6 +4,10 @@ local modpath = minetest.get_modpath(minetest.get_current_modname())
 
 local one_px = 1 / 16
 
+local emptyOrNil = function(x)
+	return x == nil or x == ""
+end
+
 local node_box_fixed = {
   {-0.5, -0.5 + one_px, -0.5, 0.5, -0.5 + one_px * 2, 0.5},
 }
@@ -101,12 +105,8 @@ local function on_dig(pos, node, player)
 		end
 	end
 
-	local break_pos = {x = pos.x, y = pos.y, z = pos.z}
-	while minetest.get_item_group(minetest.get_node(break_pos).name, "vines") > 0 do
-		minetest.remove_node(break_pos)
-		minetest.handle_node_drops(break_pos, {drop_item}, player)
-		break_pos.y = break_pos.y - 1
-	end
+	-- TODO: Should I delegate to default dig instead?
+	minetest.remove_node(pos)
 end
 
 vines.register_vine = function( name, defs, def )
@@ -118,21 +118,31 @@ vines.register_vine = function( name, defs, def )
 	local vine_wield_image_end = "vines_" .. name .. "_end.png"
 	local vine_image_middle = "vines_" .. name .. "_middle.png^[transformR180"
 
-	local function ensure_vine_end(pos)
-		local parent_pos = vector.from_string(core.get_meta(pos):get_string('parent_pos'))
+	local function on_vine_destruct(pos)
+		local meta = minetest.get_meta(pos)
+		local parent_pos = meta:get_string('parent_pos')
+		local child_pos = meta:get_string('child_pos')
 
 		-- Not defined, most likely is the most parent of vines. The first vine node.
-		if parent_pos == nil then
-			return
+		if not emptyOrNil(parent_pos) then
+			parent_pos = vector.from_string(parent_pos)
+			local parent = core.get_node(parent_pos)
+
+			if parent.name == vine_name_middle then
+				core.swap_node(parent_pos, {
+					name = vine_name_end,
+					param2 = parent.param2,
+				})
+			end
 		end
 
-		local parent = core.get_node(parent_pos)
-
-		if parent.name == vine_name_middle then
-			core.swap_node(parent_pos, {
-				name = vine_name_end,
-				param2 = parent.param2,
-			})
+		-- Remove child vine if exists
+		if not emptyOrNil(child_pos) then
+			local child_pos = vector.from_string(child_pos)
+			local child_node = minetest.get_node(child_pos)
+			if child_node.name == vine_name_middle or child_node.name == vine_name_end then
+				minetest.remove_node(child_pos)
+			end
 		end
 	end
 
@@ -160,6 +170,9 @@ vines.register_vine = function( name, defs, def )
 	        	name = vine_name_middle,
 	        	param2 = node.param2,
 	        })
+
+	        -- Store the child position in parent's metadata for cleanup on destruction
+	        core.get_meta(pos):set_string('child_pos', vector.to_string(p))
 
 	      	return p
         end
@@ -311,7 +324,7 @@ vines.register_vine = function( name, defs, def )
 		on_dig = on_dig,
 
 		on_destruct = function(pos)
-			ensure_vine_end(pos)
+			on_vine_destruct(pos)
 		end,
 	})
 
@@ -344,7 +357,7 @@ vines.register_vine = function( name, defs, def )
 		on_dig = on_dig,
 
 		on_destruct = function(pos)
-			ensure_vine_end(pos)
+			on_vine_destruct(pos)
 		end,
 	})
 
