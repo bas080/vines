@@ -134,8 +134,14 @@ vines.register_vine = function( name, defs, def )
 	migrate_node(vine_name_end_v1, {vine_name_end_v1, vine_name_middle_v1}, function(pos, old)
 		local new = table.copy(old)
 
+		-- Pick a somewhat random direction for plantlike vines for the whole vertical column the value stays the same.
+		if defs.flags == 'all_ceilings' then
+			new.param2 = flat_to_down[(pos.x + pos.z) % 4]
+		else
+			new.param2 = wallmounted_to_facedir[old.param2]
+		end
+
 		new.name = old.name .. '_v2'
-		new.param2 = wallmounted_to_facedir[old.param2]
 
 		core.swap_node(pos, new)
 	end)
