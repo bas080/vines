@@ -1,6 +1,18 @@
 -- TODO: Instead of doing air check it might be better to create helpers to check if something is growable into or onto.
+-- TODO: Also place middle nodes using the place of the end.
 
+local extend_group = luanti_utils.dofile('extend_group.lua')
+local migrate_node = luanti_utils.dofile('migrate_node.lua')
 local modpath = minetest.get_modpath(minetest.get_current_modname())
+
+local wallmounted_to_facedir = {
+	[2] = 19,
+	[4] = 10,
+	[3] = 13,
+	[5] = 4,
+	[1] = 2,
+	[0] = 22,
+}
 
 local one_px = 1 / 16
 
@@ -111,8 +123,23 @@ end
 
 vines.register_vine = function( name, defs, def )
 	local groups = {vines = 1, snappy = 3, flammable = 2}
-	local vine_name_end = 'vines:' .. name .. '_end'
-	local vine_name_middle = 'vines:' .. name .. '_middle'
+
+	local vine_name_end = 'vines:' .. name .. '_end_v2'
+	local vine_name_middle = 'vines:' .. name .. '_middle_v2'
+
+	local vine_name_end_v1 = 'vines:' .. name .. '_end'
+	local vine_name_middle_v1 = 'vines:' .. name .. '_middle'
+
+	-- TODO: Find a server owner that has vines configured. Should test on an existing server.
+	migrate_node(vine_name_end_v1, {vine_name_end_v1, vine_name_middle_v1}, function(pos, old)
+		local new = table.copy(old)
+
+		new.name = old.name .. '_v2'
+		new.param2 = wallmounted_to_facedir[old.param2]
+
+		core.swap_node(pos, new)
+	end)
+
 	local vine_image_end = "vines_" .. name .. "_end.png^[transformR180"
 	local vine_wield_image_middle = "vines_" .. name .. "_middle.png"
 	local vine_wield_image_end = "vines_" .. name .. "_end.png"
@@ -653,3 +680,28 @@ else
 	minetest.register_alias('vines:willow_middle', 'air')
 	minetest.register_alias('vines:willow_end', 'air')
 end
+
+extend_group('leaves', {
+  on_destruct = function(next, pos)
+    local neighbours = {
+      {x = pos.x + 1, y = pos.y, z = pos.z},
+      {x = pos.x - 1, y = pos.y, z = pos.z},
+      {x = pos.x, y = pos.y + 1, z = pos.z},
+      {x = pos.x, y = pos.y - 1, z = pos.z},
+      {x = pos.x, y = pos.y, z = pos.z + 1},
+      {x = pos.x, y = pos.y, z = pos.z - 1},
+    }
+
+    for _, npos in ipairs(neighbours) do
+      local node = core.get_node(npos)
+      local node_def = core.registered_items[node.name]
+      if node_def and node_def.groups and node_def.groups.vines then
+        core.remove_node(npos)
+      end
+    end
+
+    if next then
+      return next(pos)
+    end
+  end
+})
