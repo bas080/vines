@@ -1,8 +1,8 @@
 -- TODO: Instead of doing air check it might be better to create helpers to check if something is growable into or onto.
--- TODO: Also place middle nodes using the place of the end.
 
 local extend_group = luanti_utils.dofile('extend_group.lua')
 local migrate_node = luanti_utils.dofile('migrate_node.lua')
+local migrate_inventory = luanti_utils.dofile('migrate_inventory.lua')
 local modpath = minetest.get_modpath(minetest.get_current_modname())
 
 local wallmounted_to_facedir = {
@@ -130,6 +130,19 @@ vines.register_vine = function( name, defs, def )
 	local vine_name_end_v1 = 'vines:' .. name .. '_end'
 	local vine_name_middle_v1 = 'vines:' .. name .. '_middle'
 
+	-- Could add a setting for migration.
+	if true then
+
+	migrate_inventory(vine_name_end_v1, function(stack)
+		stack:set_name(vine_name_end)
+		return stack
+	end)
+
+	migrate_inventory(vine_name_middle_v1, function(stack)
+		stack:set_name(vine_name_middle)
+		return stack
+	end)
+
 	-- TODO: Find a server owner that has vines configured. Should test on an existing server.
 	migrate_node(vine_name_end_v1, {vine_name_end_v1, vine_name_middle_v1}, function(pos, old)
 		local new = table.copy(old)
@@ -145,6 +158,8 @@ vines.register_vine = function( name, defs, def )
 
 		core.swap_node(pos, new)
 	end)
+
+	end
 
 	local vine_image_end = "vines_" .. name .. "_end.png^[transformR180"
 	local vine_wield_image_middle = "vines_" .. name .. "_middle.png"
@@ -272,7 +287,6 @@ vines.register_vine = function( name, defs, def )
 			param2 = math.random(0, 3) -- Consider using seed randomness.
 			pos = vector.add(pos, up)
 		elseif def.flags == "all_ceilings" then
-			-- TODO: The air checks need to come back to prevent spawning in air.
 			newpos = vector.add(pos, down)
 
 			-- (1) prevent floating vines; (2) is there even space?
@@ -300,6 +314,20 @@ vines.register_vine = function( name, defs, def )
 			end
 		end
 	end
+	local on_place(itemstack, placer, pointed_thing)
+		local dir = vector.direction(pointed_thing.under, pointed_thing.above)
+		local look_dir = placer:get_look_dir()
+		local param2
+
+		-- placing item on a wall
+		if dir.y == 0 then
+			param2 = flat_to_down[core.dir_to_facedir(dir)]
+		else  -- is placing the item flat on the ground or ceiling.
+			param2 = core.dir_to_facedir(look_dir)
+		end
+
+		return core.item_place(itemstack, placer, pointed_thing, param2)
+	end
 
 	minetest.register_node(vine_name_end, {
 		description = defs.description,
@@ -325,20 +353,7 @@ vines.register_vine = function( name, defs, def )
 		    fixed = node_box_fixed,
 		},
 
-		on_place = function(itemstack, placer, pointed_thing)
-			local dir = vector.direction(pointed_thing.under, pointed_thing.above)
-			local look_dir = placer:get_look_dir()
-			local param2
-
-			-- placing item on a wall
-			if dir.y == 0 then
-				param2 = flat_to_down[core.dir_to_facedir(dir)]
-			else  -- is placing the item flat on the ground or ceiling.
-				param2 = core.dir_to_facedir(look_dir)
-			end
-
-			return core.item_place(itemstack, placer, pointed_thing, param2)
-		end,
+		on_place = on_place,
 
 		after_place_node = function(pos, placer, itemstack, pointed_thing)
 		    core.get_node_timer(pos):start(math.random(growth_min, growth_max))
@@ -380,7 +395,7 @@ vines.register_vine = function( name, defs, def )
 		groups = groups,
 		sounds = default.node_sound_leaves_defaults(),
 
-		-- TODO: implement on_place so users can place node on sides also.
+		on_place = on_place,
 
 		node_box = {
 		    type = "fixed",
