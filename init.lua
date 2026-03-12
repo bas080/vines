@@ -3,7 +3,7 @@
 local extend_group = luanti_utils.dofile('extend_group.lua')
 local migrate_node = luanti_utils.dofile('migrate_node.lua')
 local migrate_inventory = luanti_utils.dofile('migrate_inventory.lua')
-local modpath = minetest.get_modpath(minetest.get_current_modname())
+local modpath = core.get_modpath(core.get_current_modname())
 
 local wallmounted_to_facedir = {
 	[2] = 19,
@@ -52,26 +52,26 @@ local up   = {x=0,y=1,z=0}
 
 -- settings
 
-local enable_vines = minetest.settings:get_bool("vines_enable_vines", true)
-local enable_rope = minetest.settings:get_bool("vines_enable_rope", true)
-local enable_roots = minetest.settings:get_bool("vines_enable_roots", true)
-local enable_standard = minetest.settings:get_bool("vines_enable_standard", true)
-local enable_side = minetest.settings:get_bool("vines_enable_side", true)
-local enable_jungle = minetest.settings:get_bool("vines_enable_jungle", true)
-local enable_willow = minetest.settings:get_bool("vines_enable_willow", true)
+local enable_vines = core.settings:get_bool("vines_enable_vines", true)
+local enable_rope = core.settings:get_bool("vines_enable_rope", true)
+local enable_roots = core.settings:get_bool("vines_enable_roots", true)
+local enable_standard = core.settings:get_bool("vines_enable_standard", true)
+local enable_side = core.settings:get_bool("vines_enable_side", true)
+local enable_jungle = core.settings:get_bool("vines_enable_jungle", true)
+local enable_willow = core.settings:get_bool("vines_enable_willow", true)
 
-local rarity_roots = tonumber(minetest.settings:get("vines_rarity_roots")) or 0.5
+local rarity_roots = tonumber(core.settings:get("vines_rarity_roots")) or 0.5
 local default_rarity = 0.2
-local rarity_standard = tonumber(minetest.settings:get("vines_rarity_standard")) or default_rarity
-local rarity_side = tonumber(minetest.settings:get("vines_rarity_side")) or default_rarity
-local rarity_jungle = tonumber(minetest.settings:get("vines_rarity_jungle")) or default_rarity
-local rarity_willow = tonumber(minetest.settings:get("vines_rarity_willow")) or default_rarity
+local rarity_standard = tonumber(core.settings:get("vines_rarity_standard")) or default_rarity
+local rarity_side = tonumber(core.settings:get("vines_rarity_side")) or default_rarity
+local rarity_jungle = tonumber(core.settings:get("vines_rarity_jungle")) or default_rarity
+local rarity_willow = tonumber(core.settings:get("vines_rarity_willow")) or default_rarity
 
-local growth_min = tonumber(minetest.settings:get("vines_growth_min")) or 1
-local growth_max = tonumber(minetest.settings:get("vines_growth_max")) or 5
+local growth_min = tonumber(core.settings:get("vines_growth_min")) or 180
+local growth_max = tonumber(core.settings:get("vines_growth_max")) or 360
 
 -- support for i18n
-local S = minetest.get_translator("vines")
+local S = core.get_translator("vines")
 
 local dids = {}
 local spawn_funcs = {}
@@ -79,7 +79,7 @@ local spawn_funcs = {}
 -- ITEMS
 
 if enable_vines ~= false then
-	minetest.register_craftitem("vines:vines", {
+	core.register_craftitem("vines:vines", {
 		description = S("Vines"),
 		inventory_image = "vines_item.png",
 		groups = {vines = 1, flammable = 2}
@@ -88,21 +88,21 @@ end
 
 -- FUNCTIONS
 
+
 local function on_dig(pos, node, player)
-	if not player or minetest.is_protected(pos, player:get_player_name()) then
+	if not player or core.is_protected(pos, player:get_player_name()) then
 		return
 	end
-	-- TODO: why gsub! common! Consider moving into register fn
 	local vine_name_end = node.name:gsub("_middle", "_end")
 	local drop_item = "vines:vines"
 	if enable_vines == false then
 		drop_item = vine_name_end
 	end
 
-	local wielded_item = minetest.is_player(player) and player:get_wielded_item()
+	local wielded_item = core.is_player(player) and player:get_wielded_item()
 	if wielded_item then
-		local node_def = minetest.registered_nodes[node.name]
-		local dig_params = minetest.get_dig_params(
+		local node_def = core.registered_nodes[node.name]
+		local dig_params = core.get_dig_params(
 			node_def.groups,
 			wielded_item:get_tool_capabilities(),
 			wielded_item:get_wear()
@@ -117,8 +117,12 @@ local function on_dig(pos, node, player)
 		end
 	end
 
-	-- TODO: Should I delegate to default dig instead?
-	minetest.remove_node(pos)
+	local break_pos = {x = pos.x, y = pos.y, z = pos.z}
+	while core.get_item_group(core.get_node(break_pos).name, "vines") > 0 do
+		core.remove_node(break_pos)
+		core.handle_node_drops(break_pos, {drop_item}, player)
+		break_pos.y = break_pos.y - 1
+	end
 end
 
 vines.register_vine = function( name, defs, def )
@@ -167,7 +171,7 @@ vines.register_vine = function( name, defs, def )
 	local vine_image_middle = "vines_" .. name .. "_middle.png^[transformR180"
 
 	local function on_vine_destruct(pos)
-		local meta = minetest.get_meta(pos)
+		local meta = core.get_meta(pos)
 		local parent_pos = meta:get_string('parent_pos')
 		local child_pos = meta:get_string('child_pos')
 
@@ -186,26 +190,26 @@ vines.register_vine = function( name, defs, def )
 
 		-- Remove child vine if exists
 		if not emptyOrNil(child_pos) then
-			local child_pos = vector.from_string(child_pos)
-			local child_node = minetest.get_node(child_pos)
+			child_pos = vector.from_string(child_pos)
+			local child_node = core.get_node(child_pos)
 			if child_node.name == vine_name_middle or child_node.name == vine_name_end then
-				minetest.remove_node(child_pos)
+				core.remove_node(child_pos)
 			end
 		end
 	end
 
-	
+
 	local on_grow = function(pos)
 			if math.random(defs.average_length) == 1 then
 				return nil
 			end
 
-       local node = minetest.get_node(pos)
-        local dir = minetest.facedir_to_dir(node.param2)
+       local node = core.get_node(pos)
+        local dir = core.facedir_to_dir(node.param2)
 
         local grow = function(p, param2)
 
-	        minetest.set_node(p, {
+	        core.set_node(p, {
 	            name = vine_name_end,
 	            param2 = param2,
 	        })
@@ -214,7 +218,7 @@ vines.register_vine = function( name, defs, def )
 
 	        -- We swap so we keep the meta data of the vine end around.
 	        -- This is later used to set a middle node to end node when node breaks.
-	        minetest.swap_node(pos, {
+	        core.swap_node(pos, {
 	        	name = vine_name_middle,
 	        	param2 = node.param2,
 	        })
@@ -272,7 +276,7 @@ vines.register_vine = function( name, defs, def )
         	end
 
         	-- Is the node strong enough to grow onto?
-					if minetest.registered_nodes[diag_node.name].buildable_to == true then
+					if core.registered_nodes[diag_node.name].buildable_to == true then
         		return nil
         	end
 
@@ -287,7 +291,7 @@ vines.register_vine = function( name, defs, def )
 			param2 = math.random(0, 3) -- Consider using seed randomness.
 			pos = vector.add(pos, up)
 		elseif def.flags == "all_ceilings" then
-			newpos = vector.add(pos, down)
+			local newpos = vector.add(pos, down)
 
 			-- (1) prevent floating vines; (2) is there even space?
 			if core.get_node(pos).name == 'air' and core.get_node(newpos).name ~= "air" then
@@ -314,7 +318,8 @@ vines.register_vine = function( name, defs, def )
 			end
 		end
 	end
-	local on_place(itemstack, placer, pointed_thing)
+
+	local function on_place(itemstack, placer, pointed_thing)
 		local dir = vector.direction(pointed_thing.under, pointed_thing.above)
 		local look_dir = placer:get_look_dir()
 		local param2
@@ -329,7 +334,7 @@ vines.register_vine = function( name, defs, def )
 		return core.item_place(itemstack, placer, pointed_thing, param2)
 	end
 
-	minetest.register_node(vine_name_end, {
+	core.register_node(vine_name_end, {
 		description = defs.description,
 		walkable = false,
 		climbable = true,
@@ -376,7 +381,7 @@ vines.register_vine = function( name, defs, def )
 		end,
 	})
 
-	minetest.register_node(vine_name_middle, {
+	core.register_node(vine_name_middle, {
 		description = S("Matured") .. " " .. defs.description,
 		walkable = false,
 		climbable = true,
@@ -409,7 +414,7 @@ vines.register_vine = function( name, defs, def )
 		end,
 	})
 
-	minetest.register_decoration({
+	core.register_decoration({
 		name = "vines:" .. name,
 		decoration = {'air'},
 		fill_ratio = def.rarity,
@@ -423,18 +428,18 @@ vines.register_vine = function( name, defs, def )
 	dids[#dids + 1] = {name = name, spawn_func = spawn_plants}
 end
 
-minetest.register_on_mods_loaded(function()
+core.register_on_mods_loaded(function()
 	for idx, def in ipairs(dids) do
-		local did = minetest.get_decoration_id("vines:" .. def.name)
+		local did = core.get_decoration_id("vines:" .. def.name)
 		dids[idx] = did
 		spawn_funcs[did] = def.spawn_func
 	end
 
-	minetest.set_gen_notify("decoration", dids)
+	core.set_gen_notify("decoration", dids)
 end)
 
-minetest.register_on_generated(function(minp, maxp, blockseed)
-	local g = minetest.get_mapgen_object("gennotify")
+core.register_on_generated(function(minp, maxp, blockseed)
+	local g = core.get_mapgen_object("gennotify")
 
 	for _, did in ipairs(dids) do
 		local deco_locations = g["decoration#" .. did]
@@ -451,21 +456,21 @@ end)
 -- ALIASES
 
 -- used to remove the old vine nodes and give room for the new.
-minetest.register_alias( 'vines:root', 'air' )
-minetest.register_alias( 'vines:root_rotten', 'air' )
-minetest.register_alias( 'vines:vine', 'air' )
-minetest.register_alias( 'vines:vine_rotten', 'air' )
-minetest.register_alias( 'vines:side', 'air' )
-minetest.register_alias( 'vines:side_rotten', 'air' )
-minetest.register_alias( 'vines:jungle', 'air' )
-minetest.register_alias( 'vines:jungle_rotten', 'air' )
-minetest.register_alias( 'vines:willow', 'air' )
-minetest.register_alias( 'vines:willow_rotten', 'air' )
+core.register_alias( 'vines:root', 'air' )
+core.register_alias( 'vines:root_rotten', 'air' )
+core.register_alias( 'vines:vine', 'air' )
+core.register_alias( 'vines:vine_rotten', 'air' )
+core.register_alias( 'vines:side', 'air' )
+core.register_alias( 'vines:side_rotten', 'air' )
+core.register_alias( 'vines:jungle', 'air' )
+core.register_alias( 'vines:jungle_rotten', 'air' )
+core.register_alias( 'vines:willow', 'air' )
+core.register_alias( 'vines:willow_rotten', 'air' )
 
 
 -- ROPE
 if enable_rope ~= false then
-	minetest.register_craft({
+	core.register_craft({
 		output = 'vines:rope_block',
 		recipe = {
 			{'group:vines', 'group:vines', 'group:vines'},
@@ -474,8 +479,8 @@ if enable_rope ~= false then
 		}
 	})
 
-	if minetest.get_modpath("moreblocks") then
-		minetest.register_craft({
+	if core.get_modpath("moreblocks") then
+		core.register_craft({
 			output = 'vines:rope_block',
 			recipe = {
 				{'moreblocks:rope', 'moreblocks:rope', 'moreblocks:rope'},
@@ -485,7 +490,7 @@ if enable_rope ~= false then
 		})
 	end
 
-	minetest.register_node("vines:rope_block", {
+	core.register_node("vines:rope_block", {
 		description = S("Rope"),
 		sunlight_propagates = true,
 		paramtype = "light",
@@ -503,29 +508,29 @@ if enable_rope ~= false then
 		after_place_node = function(pos)
 
 			local p = {x = pos.x, y = pos.y - 1, z = pos.z}
-			local n = minetest.get_node(p)
+			local n = core.get_node(p)
 
 			if n.name == "air" then
-				minetest.add_node(p, {name = "vines:rope_end"})
+				core.add_node(p, {name = "vines:rope_end"})
 			end
 		end,
 
 		after_dig_node = function(pos, node, digger)
 
 			local p = {x = pos.x, y = pos.y - 1, z = pos.z}
-			local n = minetest.get_node(p)
+			local n = core.get_node(p)
 
 			while n.name == 'vines:rope' or n.name == 'vines:rope_end' do
 
-				minetest.remove_node(p)
+				core.remove_node(p)
 
 				p = {x = p.x, y = p.y - 1, z = p.z}
-				n = minetest.get_node(p)
+				n = core.get_node(p)
 			end
 		end
 	})
 
-	minetest.register_node("vines:rope", {
+	core.register_node("vines:rope", {
 		description = S("Rope"),
 		walkable = false,
 		climbable = true,
@@ -544,7 +549,7 @@ if enable_rope ~= false then
 		},
 	})
 
-	minetest.register_node("vines:rope_end", {
+	core.register_node("vines:rope_end", {
 		description = S("Rope"),
 		walkable = false,
 		climbable = true,
@@ -562,7 +567,7 @@ if enable_rope ~= false then
 
 			local yesh = {x = pos.x, y = pos.y - 1, z = pos.z}
 
-			minetest.add_node(yesh, {name = "vines:rope"})
+			core.add_node(yesh, {name = "vines:rope"})
 		end,
 
 		selection_box = {
@@ -572,7 +577,7 @@ if enable_rope ~= false then
 
 		on_construct = function(pos)
 
-			local timer = minetest.get_node_timer(pos)
+			local timer = core.get_node_timer(pos)
 
 			timer:start(1)
 		end,
@@ -580,15 +585,15 @@ if enable_rope ~= false then
 		on_timer = function( pos, elapsed )
 
 			local p = {x = pos.x, y = pos.y - 1, z = pos.z}
-			local n = minetest.get_node(p)
+			local n = core.get_node(p)
 
 			if n.name == "air" then
 
-				minetest.set_node(pos, {name = "vines:rope"})
-				minetest.add_node(p, {name = "vines:rope_end"})
+				core.set_node(pos, {name = "vines:rope"})
+				core.add_node(p, {name = "vines:rope_end"})
 			else
 
-				local timer = minetest.get_node_timer(pos)
+				local timer = core.get_node_timer(pos)
 
 				timer:start(1)
 			end
@@ -597,7 +602,7 @@ if enable_rope ~= false then
 end
 
 -- SHEARS
-minetest.register_tool("vines:shears", {
+core.register_tool("vines:shears", {
 	description = S("Shears"),
 	inventory_image = "vines_shears.png",
 	wield_image = "vines_shears.png",
@@ -612,7 +617,7 @@ minetest.register_tool("vines:shears", {
 	},
 })
 
-minetest.register_craft({
+core.register_craft({
 	output = 'vines:shears',
 	recipe = {
 		{'', 'default:steel_ingot', ''},
@@ -633,8 +638,8 @@ if enable_roots ~= false then
 		rarity = rarity_roots,
 	})
 else
-	minetest.register_alias('vines:root_middle', 'air')
-	minetest.register_alias('vines:root_end', 'air')
+	core.register_alias('vines:root_middle', 'air')
+	core.register_alias('vines:root_end', 'air')
 end
 
 -- STANDARD VINES
@@ -651,8 +656,8 @@ if enable_standard ~= false then
 		rarity = rarity_standard,
 	})
 else
-	minetest.register_alias('vines:vine_middle', 'air')
-	minetest.register_alias('vines:vine_end', 'air')
+	core.register_alias('vines:vine_middle', 'air')
+	core.register_alias('vines:vine_end', 'air')
 end
 
 -- SIDE VINES
@@ -669,8 +674,8 @@ if enable_side ~= false then
 		rarity = rarity_side,
 	})
 else
-	minetest.register_alias('vines:side_middle', 'air')
-	minetest.register_alias('vines:side_end', 'air')
+	core.register_alias('vines:side_middle', 'air')
+	core.register_alias('vines:side_end', 'air')
 end
 
 -- JUNGLE VINES
@@ -685,8 +690,8 @@ if enable_jungle ~= false then
 		rarity = rarity_jungle,
 	})
 else
-	minetest.register_alias('vines:jungle_middle', 'air')
-	minetest.register_alias('vines:jungle_end', 'air')
+	core.register_alias('vines:jungle_middle', 'air')
+	core.register_alias('vines:jungle_end', 'air')
 end
 
 -- WILLOW VINES (Note from 2024-06: Broken for years now, integration w/ new moretrees spawn mechanic needed)
@@ -698,8 +703,8 @@ if enable_willow ~= false then
 		rarity = rarity_willow,
 	})
 else
-	minetest.register_alias('vines:willow_middle', 'air')
-	minetest.register_alias('vines:willow_end', 'air')
+	core.register_alias('vines:willow_middle', 'air')
+	core.register_alias('vines:willow_end', 'air')
 end
 
 extend_group('leaves', {
