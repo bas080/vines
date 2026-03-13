@@ -6,5 +6,5 @@
    "short_description" : "Add vines and the ropebox to your world",
    "title" : "Vines",
    "type" : "MOD",
-   "$version": "0.0.0"
+   "$version": "0.0.1"
 }
