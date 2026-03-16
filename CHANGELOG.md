@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.2
+
+- Subtle visual tweaks to vine tiles and nodebox for improved aesthetics.
+
 ## 0.0.1
 
 - Added automatic migration for legacy vine nodes and inventory items to new `_v2` node variants.
