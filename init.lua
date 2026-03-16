@@ -14,14 +14,23 @@ local wallmounted_to_facedir = {
 	[0] = 22,
 }
 
-local one_px = 1 / 16
+local function tiles(tile)
+	local r90= tile..'^[transformR90'
+	local r180 = tile..'^[transformR180'
+	local r270 = tile..'^[transformR270'
+
+	return {tile, r180, r270, r90, tile, tile}
+end
+
+
+local one_px = 1 / 32
 
 local emptyOrNil = function(x)
 	return x == nil or x == ""
 end
 
 local node_box_fixed = {
-  {-0.5, -0.5 + one_px, -0.5, 0.5, -0.5 + one_px * 2, 0.5},
+  {-0.5, -0.5, -0.5, 0.5, -0.5 + one_px * 2, 0.5},
 }
 
 vines = {
@@ -348,7 +357,7 @@ vines.register_vine = function( name, defs, def )
 		is_ground_content = false,
 		buildable_to = true,
 		-- check what happens with the ugly vines. The end is flipped...
-		tiles = {vine_image_end, vine_image_end ..  "^[transform6"},
+		tiles = tiles(vine_image_end),
 		drawtype = 'nodebox',
 		inventory_image = vine_wield_image_end,
 		groups = groups,
@@ -393,7 +402,7 @@ vines.register_vine = function( name, defs, def )
 		is_ground_content = false,
 		paramtype2 = "facedir",
 		buildable_to = true,
-		tiles = {vine_image_middle, vine_image_middle ..  "^[transform6"},
+		tiles = tiles(vine_image_middle),
 		wield_image = vine_wield_image_middle,
 		drawtype = 'nodebox',
 		inventory_image = vine_wield_image_middle,
