@@ -1,18 +1,11 @@
 -- TODO: Instead of doing air check it might be better to create helpers to check if something is growable into or onto.
 
+local modpath = core.get_modpath(core.get_current_modname())
 local extend_group = luanti_utils.dofile('extend_group.lua')
 local migrate_node = luanti_utils.dofile('migrate_node.lua')
 local migrate_inventory = luanti_utils.dofile('migrate_inventory.lua')
-local modpath = core.get_modpath(core.get_current_modname())
+local wallmounted_to_facedir = luanti_utils.dofile('wallmounted_to_facedir.lua')
 
-local wallmounted_to_facedir = {
-	[2] = 19,
-	[4] = 10,
-	[3] = 13,
-	[5] = 4,
-	[1] = 2,
-	[0] = 22,
-}
 
 local function tiles(tile)
 	local r90= tile..'^[transformR90'
@@ -164,7 +157,7 @@ vines.register_vine = function( name, defs, def )
 		if defs.flags == 'all_ceilings' then
 			new.param2 = flat_to_down[(pos.x + pos.z) % 4]
 		else
-			new.param2 = wallmounted_to_facedir[old.param2]
+			new.param2 = wallmounted_to_facedir(old.param2)
 		end
 
 		new.name = old.name .. '_v2'

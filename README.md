@@ -1,6 +1,8 @@
 # Vines
 
-Original mod by bas080; changes to the mod taken from plantlife.
+Original mod by bas080.
+Maintained and improved as part of plantlife.
+Extracted and revamped by bas080.
 
 ## Features
 
