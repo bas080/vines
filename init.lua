@@ -5,7 +5,7 @@ local extend_group = luanti_utils.dofile('extend_group.lua')
 local migrate_node = luanti_utils.dofile('migrate_node.lua')
 local migrate_inventory = luanti_utils.dofile('migrate_inventory.lua')
 local wallmounted_to_facedir = luanti_utils.dofile('wallmounted_to_facedir.lua')
-
+local register_decoration = luanti_utils.dofile('register_decoration.lua')
 
 local function tiles(tile)
 	local r90= tile..'^[transformR90'
@@ -416,7 +416,7 @@ vines.register_vine = function( name, defs, def )
 		end,
 	})
 
-	core.register_decoration({
+	register_decoration({
 		name = "vines:" .. name,
 		decoration = {'air'},
 		fill_ratio = def.rarity,
@@ -426,34 +426,9 @@ vines.register_vine = function( name, defs, def )
 		place_on = def.place_on,
 		deco_type = "simple",
 		flags = def.flags,
+		on_position = spawn_plants,
 	})
-	dids[#dids + 1] = {name = name, spawn_func = spawn_plants}
 end
-
-core.register_on_mods_loaded(function()
-	for idx, def in ipairs(dids) do
-		local did = core.get_decoration_id("vines:" .. def.name)
-		dids[idx] = did
-		spawn_funcs[did] = def.spawn_func
-	end
-
-	core.set_gen_notify("decoration", dids)
-end)
-
-core.register_on_generated(function(minp, maxp, blockseed)
-	local g = core.get_mapgen_object("gennotify")
-
-	for _, did in ipairs(dids) do
-		local deco_locations = g["decoration#" .. did]
-
-		if deco_locations then
-			local func = spawn_funcs[did]
-			for _, pos in pairs(deco_locations) do
-				func(pos)
-			end
-		end
-	end
-end)
 
 -- ALIASES
 
