@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.0.3
+
+- Updated project description in README.
+- Added automated spawn check (`check.lua`) for vines.
+- Refactored code to use shared helpers:
+  - `wallmounted_to_facedir.lua`
+  - `register_decoration.lua`
+- Switched to custom `register_decoration` with `on_position` callback
+  and simplified spawn so check can be removed because offset is good enough.
+- Cleaned up unused variables and code paths
+- Added `luanti_check` as optional dependency
+- Updated screenshot
+
 ## 0.0.2
 
 - Subtle visual tweaks to vine tiles and nodebox for improved aesthetics.
