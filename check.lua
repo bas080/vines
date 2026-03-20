@@ -16,5 +16,11 @@ end, function(t, player)
     -- Retry if the node was a sea level node.
     gen.where(node_pos ~= nil)
 
+    -- Jump to vine for inspection.
+    gen.player_pos({
+        player = player,
+        pos = node_pos
+    })
+
     t.done() -- Reached the end. It seems you have spawned a waterfall.
 end)
