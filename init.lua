@@ -50,7 +50,6 @@ for k, v in pairs(flat_to_down) do
 end
 
 local down = {x=0,y=-1,z=0}
-local up   = {x=0,y=1,z=0}
 
 -- settings
 
@@ -74,9 +73,6 @@ local growth_max = tonumber(core.settings:get("vines_growth_max")) or 360
 
 -- support for i18n
 local S = core.get_translator("vines")
-
-local dids = {}
-local spawn_funcs = {}
 
 -- ITEMS
 
@@ -291,14 +287,8 @@ vines.register_vine = function( name, defs, def )
 		local param2 = 0
 		if def.flags == "all_floors" then
 			param2 = math.random(0, 3) -- Consider using seed randomness.
-			pos = vector.add(pos, up)
 		elseif def.flags == "all_ceilings" then
 			local newpos = vector.add(pos, down)
-
-			-- (1) prevent floating vines; (2) is there even space?
-			if core.get_node(pos).name == 'air' and core.get_node(newpos).name ~= "air" then
-				return
-			end
 
 			pos = newpos
 			param2 = downs[math.random(4)] -- Consider using seed randomness.
@@ -422,7 +412,7 @@ vines.register_vine = function( name, defs, def )
 		fill_ratio = def.rarity,
 		y_min = -16,
 		y_max = 48,
-		place_offset_y = 0,
+		place_offset_y = 1,
 		place_on = def.place_on,
 		deco_type = "simple",
 		flags = def.flags,
