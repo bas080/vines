@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.4
+
+- Fix spawning on mapgen again and try and improve it.
+- Format code and fix luacheck errors.
+
 ## 0.0.3
 
 - Updated project description in README.
