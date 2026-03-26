@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.5
+
+- Place media license in LICENSE.txt.
+- Format code with stylua.
+
 ## 0.0.4
 
 - Fix spawning on mapgen again and try and improve it.

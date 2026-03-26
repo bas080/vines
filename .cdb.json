@@ -1,11 +1,11 @@
 {
+   "$author" : "bas080",
+   "$version" : "0.0.5",
    "dev_state" : "ACTIVELY_DEVELOPED",
    "license" : "LGPL-2.1-only",
    "media_license" : "CC0-1.0",
    "name" : "vines",
    "short_description" : "Add vines and the ropebox to your world",
    "title" : "Vines",
-   "type" : "MOD",
-   "$author": "bas080",
-   "$version": "0.0.4"
+   "type" : "MOD"
 }
