@@ -13,7 +13,7 @@ local function tiles(tile)
     local r180 = tile .. "^[transformR180"
     local r270 = tile .. "^[transformR270"
 
-    return { tile, r180, r270, r90, tile, tile }
+    return { tile, r180, r270, r90, r180, tile }
 end
 
 local one_px = 1 / 32
