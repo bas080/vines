@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.6
+
+- Fix incorrect AI generated translations.
+- Fix a small texture artifact at bottom of vines.
+
 ## 0.0.5
 
 - Place media license in LICENSE.txt.
