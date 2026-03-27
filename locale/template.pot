@@ -1,11 +1,8 @@
-# Translation template for the vines mod.
-# Generated from template.txt
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: vines\n"
 "POT-Creation-Date: 2026-03-09 00:00+0000\n"
-"Language: \n"
+"X-TextDomain: vines\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
