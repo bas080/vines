@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.7
+
+- Use more appropriate ext for vines color palette file.
+- Improve on_dig callback by removing string fiddeling.
+- Touchup the very wrong vine texture.
+
 ## 0.0.6
 
 - Fix incorrect AI generated translations.
