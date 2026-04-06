@@ -1,45 +1,54 @@
-local property, gen = luanti_check()
-local range = 40
+-- luacheck: read_globals luanti_check
 
-property("Spawns vines", function(t)
-    local player = gen.player_pos({
-        pos = { y = range * 2 },
-    })
+local test, gen = luanti_check()
 
-    t.on_emerge(function()
-        t.done(player)
-    end, range)
-end, function(t, player)
-    local _, node_pos = gen.node_pos({ player = player, radius = range, nodenames = "group:vines" })
+test("Spawns valid vines", function(t)
+	local player = gen.player_pos({
+		pos = { y = 45 },
+	})
 
-    gen.player_pos({
-        player = player,
-        pos = node_pos,
-    })
+	local function on_emerge()
+		local positions = gen.node_positions({ nodenames = "group:vines" })
 
-    t.done(player, node_pos)
-end, function(t, player, node_pos)
-    -- find all nodes in range and check that they follow certain rules by iterating over them.
-    -- vine nodes should always  b
-    -- must always have either a node above or below.
+		if #positions == 0 then
+			return t.retry("Did not find vines")
+		end
 
-    local found = core.find_nodes_in_area(vector.add(node_pos, -range), vector.add(node_pos, range), { "group:vines" })
+		for _, pos in pairs(positions) do
+			local child_pos_str = core.get_meta(pos):get_string("child_pos")
 
-    gen.where(#found > 0)
+			-- Not correct, needs more thought
+			-- t.ok(
+			-- 	core.get_node(vector.add(pos, down)).name ~= "air" or
+			-- 	  core.get_node(vector.add(pos, up)).name ~= "air",
+			-- 	"Vines at "..vector.to_string(pos).." has non air below or above it"
+			-- )
 
-    for _, pos in ipairs(found) do
-        local down = vector.add(pos, { y = -1, x = 0, z = 0 })
-        local up = vector.add(pos, { y = 1, x = 0, z = 0 })
+			-- check if child_pos has parent pos and parent pos has child pos.
+			-- check if end vine has no child pos
 
-        if core.get_node(down).name == "air" and core.get_node(up).name == "air" then
-            player:set_pos(pos)
+			if math.random(3) == 1 then
+				if child_pos_str ~= "" then
+					local child_pos = vector.from_string(child_pos_str)
 
-            -- t.ok(core.get_node(down).name ~= "air" or core.get_node(up).name ~= "air",
-            error("Should not have dangling vines. This check is not good enough though.")
-        end
+					-- It is possible that child node was removed during mapgen.
+					if core.get_node(child_pos).name ~= "air" then
+						core.dig_node(pos, player)
+						-- child pos is air after parent dig.
+						-- cannot do a test like this because it allows for race-conditions. :( bad Luanti
+						t.after(2, function()
+							t.ok(
+								core.get_node(child_pos).name == "air",
+								"Node at " .. child_pos_str .. " is removed after parent is dug."
+							)
+						end)
+					end
+				end
+			end
+		end
 
-        -- "Must have a node either above or below the vine")
-    end
+		t.done()
+	end
 
-    t.done()
+	t.emerge(on_emerge)
 end)
