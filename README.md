@@ -18,12 +18,6 @@ Extracted and revamped by bas080.
 
 See [development branch][development_branch].
 
-## Donate
-
-If you enjoy my work, you can support me here: [💖 Donate](https://liberapay.com/bas080)
-
-Thank you for helping me keep modding and sharing fun with everyone!
-
 ## Contributors
 
 - Auke Kok
