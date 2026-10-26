@@ -125,11 +125,15 @@ end
 vines.register_vine = function(name, defs, def)
 	local groups = { vines = 1, snappy = 3, flammable = 2 }
 
-	local vine_name_end = "vines:" .. name .. "_end_v2"
-	local vine_name_middle = "vines:" .. name .. "_middle_v2"
+	-- Allow for third-part mods to register nodes.
+	local modname = core.get_current_modname()
 
-	local vine_name_end_v1 = "vines:" .. name .. "_end"
-	local vine_name_middle_v1 = "vines:" .. name .. "_middle"
+	local vine_name_end = modname .. ":" .. name .. "_end_v2"
+	local vine_name_middle = modname .. ":" .. name .. "_middle_v2"
+
+	-- TODO: Do not perform migrations for third-party mods?
+	local vine_name_end_v1 = modname .. ":" .. name .. "_end"
+	local vine_name_middle_v1 = modname .. ":" .. name .. "_middle"
 
 	-- Could add a setting for migration.
 	if true then
