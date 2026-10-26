@@ -1,8 +1,5 @@
 -- luacheck: globals vines
 -- luacheck: read_globals luanti_utils default
---
--- TODO: Instead of doing air check it might be better to create
--- helpers to check if something is growable into or onto.
 
 local modpath = core.get_modpath(core.get_current_modname())
 local extend_group = luanti_utils.dofile("extend_group.lua")
@@ -278,7 +275,7 @@ vines.register_vine = function(name, defs, def)
 			end
 
 			-- Is the node strong enough to grow onto?
-			if core.registered_nodes[diag_node.name].buildable_to == true then
+			if is_buildable_to(diag_node) then
 				return nil
 			end
 
