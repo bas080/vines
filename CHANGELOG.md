@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.8
+
+- Use is_buildable_to function from luanti_utils.
+- Fix issue where third-party mods are not able to register a vine.
+
 ## 0.0.7
 
 - Use more appropriate ext for vines color palette file.
